@@ -1,0 +1,37 @@
+{
+  "name": "Savor",
+  "slug": "savor",
+  "categories": [0],
+  "date_created": "2026-07-16",
+  "type": "ct",
+  "updateable": true,
+  "privileged": false,
+  "interface_port": 3000,
+  "documentation": "https://github.com/community-scripts/savor",
+  "website": "https://github.com/community-scripts/savor",
+  "logo": "https://raw.githubusercontent.com/community-scripts/savor/main/public/icons/favicon.svg",
+  "description": "A lightweight, self-hosted recipe manager container designed for Proxmox VE LXC, featuring web imports, collections organization, FTS5 search, local storage, PIN locking, and full tarball backup/restore.",
+  "install_methods": [
+    {
+      "type": "default",
+      "script": "ct/savor.sh",
+      "resources": {
+        "cpu": 2,
+        "ram": 2048,
+        "hdd": 8,
+        "os": "ubuntu",
+        "version": "24.04"
+      }
+    }
+  ],
+  "default_credentials": {
+    "username": "admin@local",
+    "password": "recipe"
+  },
+  "notes": [
+    "Default port is 3000.",
+    "No default collections - Savor starts empty for custom organization.",
+    "Authentication is enabled by default. Use admin@local with password 'recipe' to log in.",
+    "Backups copy the SQLite DB and locally optimized recipe images."
+  ]
+}

@@ -1,0 +1,82 @@
+<!-- Create Collection Modal -->
+<div class="modal-overlay" id="create-collection-modal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3>Create Collection</h3>
+      <button class="modal-close" onclick="closeModal('create-collection-modal')">&times;</button>
+    </div>
+    <form action="/collections" method="POST" id="create-collection-form">
+      <div class="form-group">
+        <label for="collection-name" class="form-label">Collection Name</label>
+        <input type="text" id="collection-name" name="name" class="form-control" placeholder="e.g. Dinner, Breakfast, Desserts" required>
+      </div>
+      <div class="form-group">
+        <label for="collection-desc" class="form-label">Description (Optional)</label>
+        <textarea id="collection-desc" name="description" class="form-control" placeholder="Describe this collection..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Theme Color</label>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <% const colors = ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#64748b']; %>
+          <% colors.forEach((color, idx) => { %>
+            <label style="width: 32px; height: 32px; border-radius: 50%; background: <%= color %>; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border: 2px solid transparent; transition: transform var(--transition-fast);">
+              <input type="radio" name="color" value="<%= color %>" <%= idx === 0 ? 'checked' : '' %> style="opacity: 0; position: absolute; width: 0; height: 0;">
+              <span class="color-check-indicator" style="display: none; color: #fff;">✓</span>
+            </label>
+          <% }) %>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="collection-icon" class="form-label">Icon (Optional)</label>
+        <select id="collection-icon" name="icon" class="form-control">
+          <option value="folder">Folder</option>
+          <option value="book">Book</option>
+          <option value="heart">Heart</option>
+          <option value="star">Star</option>
+          <option value="coffee">Coffee</option>
+          <option value="utensils">Utensils</option>
+        </select>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('create-collection-modal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="modal-overlay" id="confirm-delete-modal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 style="color: var(--danger);">Confirm Action</h3>
+      <button class="modal-close" onclick="closeModal('confirm-delete-modal')">&times;</button>
+    </div>
+    <div style="margin-bottom: 2rem;">
+      <p id="confirm-delete-message">Are you sure you want to proceed? This action cannot be undone.</p>
+    </div>
+    <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+      <button type="button" class="btn btn-secondary" onclick="closeModal('confirm-delete-modal')">Cancel</button>
+      <form id="confirm-delete-form" method="POST">
+        <input type="hidden" name="_method" id="confirm-delete-method" value="POST">
+        <button type="submit" class="btn btn-danger" id="confirm-delete-btn">Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  input[type="radio"]:checked + .color-check-indicator {
+    display: block !important;
+  }
+  input[type="radio"]:checked ~ span {
+    display: block !important;
+  }
+  input[type="radio"]:checked {
+    outline: none;
+  }
+  /* Style color selector radio wrappers */
+  input[type="radio"]:checked + span {
+    font-weight: bold;
+  }
+</style>

@@ -1,0 +1,30 @@
+{
+  "name": "savor",
+  "version": "1.0.0",
+  "description": "A lightweight, self-hosted recipe manager designed for Proxmox LXC deployment",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "recipe",
+    "cooking",
+    "self-hosted",
+    "proxmox",
+    "lxc"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "better-sqlite3": "^11.7.0",
+    "cheerio": "^1.0.0",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.33.5",
+    "tar": "^7.5.20",
+    "tesseract.js": "^7.0.0",
+    "ws": "^8.21.1"
+  }
+}

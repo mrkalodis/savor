@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Print - <%= recipe.title %></title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      color: #000;
+      background-color: #fff;
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 2.25rem;
+      margin-bottom: 0.5rem;
+      border-bottom: 3px solid #000;
+      padding-bottom: 0.5rem;
+    }
+    p.desc {
+      font-size: 1.05rem;
+      color: #444;
+      font-style: italic;
+      margin-bottom: 1.5rem;
+    }
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+    .meta-table td {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #ddd;
+    }
+    .meta-table td strong {
+      color: #000;
+    }
+    .section {
+      margin-bottom: 2rem;
+      page-break-inside: avoid;
+    }
+    h3 {
+      font-size: 1.35rem;
+      border-bottom: 2px solid #000;
+      padding-bottom: 0.25rem;
+      margin-bottom: 1rem;
+    }
+    ul, ol {
+      padding-left: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    li {
+      margin-bottom: 0.5rem;
+    }
+    .notes-box {
+      background-color: #f9f9f9;
+      border: 1px solid #eee;
+      padding: 1.25rem;
+      border-radius: 4px;
+      margin-top: 2rem;
+      font-size: 0.95rem;
+      page-break-inside: avoid;
+    }
+    @media print {
+      body {
+        padding: 0;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 1rem;">
+    <span style="font-weight: bold; font-size: 1.2rem; color: #6366f1;">Savor Recipe Manager</span>
+    <button onclick="window.print()" style="background-color: #6366f1; color: #fff; border: none; padding: 0.5rem 1.25rem; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.9rem;">Print Page</button>
+  </div>
+
+  <h1><%= recipe.title %></h1>
+  <% if (recipe.description) { %>
+    <p class="desc"><%= recipe.description %></p>
+  <% } %>
+
+  <table class="meta-table">
+    <tr>
+      <% if (recipe.prep_time) { %>
+        <td>Prep: <strong><%= formatDuration(recipe.prep_time) %></strong></td>
+      <% } %>
+      <% if (recipe.cook_time) { %>
+        <td>Cook: <strong><%= formatDuration(recipe.cook_time) %></strong></td>
+      <% } %>
+      <% if (recipe.total_time) { %>
+        <td>Total: <strong><%= formatDuration(recipe.total_time) %></strong></td>
+      <% } %>
+      <% if (recipe.servings) { %>
+        <td>Serves: <strong><%= recipe.servings %></strong></td>
+      <% } %>
+    </tr>
+  </table>
+
+  <div class="section">
+    <h3>Ingredients</h3>
+    <ul>
+      <% const ingredients = (typeof recipe.ingredients === 'string') ? JSON.parse(recipe.ingredients) : recipe.ingredients; %>
+      <% if (ingredients && ingredients.length > 0) { %>
+        <% ingredients.forEach(ingredient => { %>
+          <li><%= ingredient %></li>
+        <% }) %>
+      <% } else { %>
+        <li>No ingredients listed.</li>
+      <% } %>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h3>Instructions</h3>
+    <ol>
+      <% const instructions = (typeof recipe.instructions === 'string') ? JSON.parse(recipe.instructions) : recipe.instructions; %>
+      <% if (instructions && instructions.length > 0) { %>
+        <% instructions.forEach(step => { %>
+          <li><%= step %></li>
+        <% }) %>
+      <% } else { %>
+        <li>No instructions listed.</li>
+      <% } %>
+    </ol>
+  </div>
+
+  <% if (recipe.notes) { %>
+    <div class="notes-box">
+      <h3 style="border-bottom: none; margin-top: 0; padding-bottom: 0; font-size: 1.15rem; margin-bottom: 0.5rem;">Notes</h3>
+      <p style="white-space: pre-wrap; margin: 0; line-height: 1.6;"><%= recipe.notes %></p>
+    </div>
+  <% } %>
+
+  <div style="margin-top: 3rem; font-size: 0.75rem; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 1rem;" class="no-print">
+    <%= recipe.source_url ? 'Original Source: ' + recipe.source_url : 'Printed from Savor Recipe Manager' %>
+  </div>
+</body>
+</html>

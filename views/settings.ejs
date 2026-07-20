@@ -1,0 +1,284 @@
+<div style="display: flex; flex-direction: column; gap: 2rem; max-width: 800px; margin: 0 auto;">
+  <% if (typeof flashError !== 'undefined' && flashError) { %>
+    <div style="padding: 1rem 1.25rem; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); border-radius: var(--radius-lg); color: var(--danger); display: flex; align-items: center; gap: 0.75rem;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span><strong>Error:</strong> <%= flashError %></span>
+    </div>
+  <% } %>
+  <% if (typeof flashSuccess !== 'undefined' && flashSuccess) { %>
+    <div style="padding: 1rem 1.25rem; background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); border-radius: var(--radius-lg); color: var(--success); display: flex; align-items: center; gap: 0.75rem;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <span><strong>Success:</strong> <%= flashSuccess %></span>
+    </div>
+  <% } %>
+  <h2>Settings</h2>
+  <p style="color: var(--text-secondary); margin-top: -1.5rem; font-size: 0.95rem;">Configure Savor's local preferences, security locks, and backups.</p>
+
+  <!-- Theme Settings -->
+  <div class="settings-section">
+    <h3>Theme Preference</h3>
+    <form action="/settings" method="POST" id="theme-form">
+      <input type="hidden" name="action" value="theme">
+      <div class="radio-group">
+        <div class="radio-card <%= theme === 'system' ? 'active' : '' %>" onclick="setThemePreference('system')">
+          <input type="radio" name="theme" id="theme-system" value="system" <%= theme === 'system' ? 'checked' : '' %>>
+          <div style="font-weight: 700; margin-bottom: 0.25rem;">System</div>
+          <span style="font-size: 0.8rem; color: var(--text-secondary);">Follow OS scheme</span>
+        </div>
+        <div class="radio-card <%= theme === 'light' ? 'active' : '' %>" onclick="setThemePreference('light')">
+          <input type="radio" name="theme" id="theme-light" value="light" <%= theme === 'light' ? 'checked' : '' %>>
+          <div style="font-weight: 700; margin-bottom: 0.25rem;">Light</div>
+          <span style="font-size: 0.8rem; color: var(--text-secondary);">Clean and crisp</span>
+        </div>
+        <div class="radio-card <%= theme === 'dark' ? 'active' : '' %>" onclick="setThemePreference('dark')">
+          <input type="radio" name="theme" id="theme-dark" value="dark" <%= theme === 'dark' ? 'checked' : '' %>>
+          <div style="font-weight: 700; margin-bottom: 0.25rem;">Dark</div>
+          <span style="font-size: 0.8rem; color: var(--text-secondary);">Easy on the eyes</span>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Accent Color Settings -->
+  <div class="settings-section">
+    <h3>Accent Color</h3>
+    <form action="/settings" method="POST" id="accent-form">
+      <input type="hidden" name="action" value="accent">
+      <div class="radio-group" style="flex-wrap: wrap; gap: 1rem;">
+        <% const accents = [
+          { key: 'purple', name: 'Purple', color: '#6366f1' },
+          { key: 'blue', name: 'Blue', color: '#3b82f6' },
+          { key: 'green', name: 'Green', color: '#10b981' },
+          { key: 'orange', name: 'Orange', color: '#f97316' },
+          { key: 'red', name: 'Red', color: '#ef4444' }
+        ]; %>
+        <% accents.forEach(acc => { %>
+          <div class="radio-card <%= activeAccent === acc.key ? 'active' : '' %>" onclick="setAccentPreference('<%= acc.key %>')" style="min-width: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem 0.5rem;">
+            <input type="radio" name="accent_color" id="accent-<%= acc.key %>" value="<%= acc.key %>" <%= activeAccent === acc.key ? 'checked' : '' %> style="display:none;">
+            <span style="display: inline-block; width: 24px; height: 24px; border-radius: 50%; background-color: <%= acc.color %>; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--border);"></span>
+            <div style="font-weight: 700; font-size: 0.9rem;"><%= acc.name %></div>
+          </div>
+        <% }) %>
+      </div>
+    </form>
+  </div>
+
+  <!-- Security Settings -->
+  <div class="settings-section">
+    <h3>Account & Security</h3>
+    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Manage your password and security settings.</p>
+
+    <!-- Change password form -->
+    <form action="/settings/auth/change-password" method="POST" style="margin-bottom: 2rem;">
+      <div class="form-group" style="max-width: 300px;">
+        <label for="old-password" class="form-label">Current Password</label>
+        <input type="password" id="old-password" name="current_password" class="form-control" required>
+      </div>
+      <div class="form-group" style="max-width: 300px;">
+        <label for="new-password" class="form-label">New Password</label>
+        <input type="password" id="new-password" name="new_password" class="form-control" required>
+      </div>
+      <button type="submit" class="btn btn-secondary btn-sm">Update Password</button>
+    </form>
+
+    <% if (locals.user && locals.user.isAdmin) { %>
+      <hr style="border: 0; border-top: 1px solid var(--border); margin: 2rem 0;">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h4>Manage Users (Admin)</h4>
+        <button class="btn btn-primary btn-sm" onclick="openModal('create-user-modal')">Create New User</button>
+      </div>
+      
+      <div style="background-color: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden;">
+        <table style="width: 100%; text-align: left; border-collapse: collapse;">
+          <thead>
+            <tr style="background-color: var(--bg-app); border-bottom: 1px solid var(--border);">
+              <th style="padding: 0.75rem 1rem; font-size: 0.85rem; color: var(--text-muted);">Email</th>
+              <th style="padding: 0.75rem 1rem; font-size: 0.85rem; color: var(--text-muted);">Role</th>
+              <th style="padding: 0.75rem 1rem; font-size: 0.85rem; color: var(--text-muted); text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% users.forEach(u => { %>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 1rem; font-weight: 500;"><%= u.email %></td>
+                <td style="padding: 1rem;">
+                  <% if (u.is_admin) { %>
+                    <span style="background: rgba(99,102,241,0.15); color: var(--primary); padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">Admin</span>
+                  <% } else { %>
+                    <span style="background: rgba(156,163,175,0.15); color: var(--text-secondary); padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">User</span>
+                  <% } %>
+                </td>
+                <td style="padding: 1rem; text-align: right;">
+                  <% if (u.id !== locals.user.id) { %>
+                    <form action="/settings/auth/<%= u.id %>/delete" method="POST" style="display: inline;">
+                      <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.4rem 0.75rem;" onclick="return confirm('Are you sure you want to delete this user? ALL of their data will be permanently deleted.')">Delete</button>
+                    </form>
+                  <% } else { %>
+                    <span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">You</span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- AI Companion Settings -->
+  <div class="settings-section">
+    <h3>AI Companion Config</h3>
+    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Configure Savor's local AI kitchen assistant. The model runs locally in the container and guarantees absolute privacy.</p>
+    
+    <form action="/settings" method="POST">
+      <input type="hidden" name="action" value="ai_config">
+      
+      <div style="background-color: var(--bg-surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+        
+        <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+          <div>
+            <label class="form-label" style="margin-bottom: 0;">Enable AI Assistant</label>
+            <span style="font-size: 0.8rem; color: var(--text-secondary); display: block;">Displays the chat helper on all pages.</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" name="ai_enabled" value="1" <%= locals.aiEnabled ? 'checked' : '' %>>
+            <span class="slider round"></span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Ollama API Endpoint</label>
+          <input type="text" name="ai_endpoint" class="form-control" placeholder="http://localhost:11434" value="<%= locals.aiEndpoint || 'http://localhost:11434' %>">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Model Name</label>
+          <input type="text" name="ai_model" class="form-control" placeholder="qwen2.5:1.5b" value="<%= locals.aiModel || 'qwen2.5:1.5b' %>">
+        </div>
+      </div>
+      
+      <button type="submit" class="btn btn-primary btn-sm">Save AI Settings</button>
+    </form>
+  </div>
+
+  <!-- Bookmarklet Scraper Tool -->
+  <div class="settings-section">
+    <h3>Savor Bookmarklet</h3>
+    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+      Save recipes to Savor instantly from any website! Drag the button below to your browser's bookmarks bar.
+      When viewing a recipe on any site (like AllRecipes, NYT Cooking, etc.), click the bookmarklet to automatically open the Savor import wizard.
+    </p>
+    
+    <%
+      const _bkOrigin = typeof origin !== 'undefined' ? origin : '';
+      const _bkHref = "javascript:(function(){var ldTags=Array.from(document.querySelectorAll('script[type=\"application/ld+json\"]'));var recipeData=null;for(var i=0;i<ldTags.length;i++){try{var j=JSON.parse(ldTags[i].textContent);if(j['@type']==='Recipe'||(Array.isArray(j)&&j.some(function(x){return x['@type']==='Recipe'}))||(j['@graph']&&j['@graph'].some(function(x){return x['@type']==='Recipe'}))){recipeData=j;break;}}catch(e){}}var form=document.createElement('form');form.method='POST';form.action='" + _bkOrigin + "/recipes/new?import=1';form.target='_blank';var u=document.createElement('input');u.type='hidden';u.name='url';u.value=window.location.href;form.appendChild(u);if(recipeData){var d=document.createElement('input');d.type='hidden';d.name='recipe_json';d.value=JSON.stringify(recipeData);form.appendChild(d);}document.body.appendChild(form);form.submit();document.body.removeChild(form);})();";
+    %>
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; border: 1px dashed var(--border); border-radius: var(--radius-lg); background: var(--bg-surface); gap: 1rem; text-align: center;">
+      <a href="<%= _bkHref %>"
+         class="btn btn-primary" 
+         style="cursor: grab; display: inline-flex; align-items: center; gap: 0.5rem; user-select: none;"
+         onclick="event.preventDefault(); alert('Drag this button to your bookmarks bar! Clicking it directly does nothing.');">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+        Savor Importer
+      </a>
+      <span style="font-size: 0.75rem; color: var(--text-secondary);">
+        ← Drag this button to your Browser Bookmarks Bar
+      </span>
+    </div>
+  </div>
+
+
+  <!-- Backup & Restore -->
+  <div class="settings-section">
+    <h3>Backup & Restore</h3>
+    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Export your entire container's state, including the SQLite recipe database and all locally optimized images, as a single archive file. Restore from this archive to fully recreate Savor.</p>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+      <!-- Export -->
+      <div style="padding: 1.5rem; border: 1px solid var(--border); border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <h4>Export Application Data</h4>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Download a tar.gz archive of savor.db and recipe images.</p>
+        </div>
+        <a href="/backup/export" class="btn btn-secondary btn-sm" style="margin-top: 1.5rem;">Download Backup</a>
+      </div>
+
+      <!-- Restore -->
+      <div style="padding: 1.5rem; border: 1px solid var(--border); border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <h4>Restore Application Data</h4>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Upload a previously downloaded Savor backup to restore. WARNING: This will overwrite all current recipes, collections, images, and settings.</p>
+        </div>
+        <form action="/backup/restore" method="POST" enctype="multipart/form-data" style="margin-top: 1.5rem;">
+          <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+            <input type="file" name="backup" accept=".tar.gz" required class="form-control" style="font-size: 0.8rem; padding: 0.4rem;">
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('WARNING: Restoring will overwrite all current recipes, collections, images, and settings. Proceed?')">Restore Backup</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Onboarding Reset Settings -->
+  <div class="settings-section">
+    <h3>Onboarding Welcome Wizard</h3>
+    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Reset the first-run welcome wizard if you want to see the configuration choices again.</p>
+    <form action="/settings/onboarding/reset" method="POST">
+      <button type="submit" class="btn btn-secondary btn-sm" style="border: 1px solid var(--border);">Reset Welcome Wizard</button>
+    </form>
+  </div>
+</div>
+
+
+<!-- Create User Modal -->
+<div class="modal-overlay" id="create-user-modal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3>Create New User</h3>
+      <button class="modal-close" onclick="closeModal('create-user-modal')">&times;</button>
+    </div>
+    <form action="/settings/auth/create-user" method="POST">
+      <div class="form-group">
+        <label for="create-email" class="form-label">Email</label>
+        <input type="email" id="create-email" name="email" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="create-password" class="form-label">Password</label>
+        <input type="password" id="create-password" name="password" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" name="is_admin" style="width: 1.25rem; height: 1.25rem;">
+          Make this user an Admin
+        </label>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('create-user-modal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create User</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function setThemePreference(mode) {
+    const card = document.getElementById('theme-' + mode).closest('.radio-card');
+    card.classList.add('active');
+    document.getElementById('theme-' + mode).checked = true;
+    
+    // Auto submit theme form
+    document.getElementById('theme-form').submit();
+  }
+
+  function setAccentPreference(color) {
+    const card = document.getElementById('accent-' + color).closest('.radio-card');
+    card.classList.add('active');
+    document.getElementById('accent-' + color).checked = true;
+    
+    // Auto submit accent form
+    document.getElementById('accent-form').submit();
+  }
+</script>

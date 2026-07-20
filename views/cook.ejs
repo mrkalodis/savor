@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= recipe.title %> — Cook Mode</title>
+  <link rel="icon" href="/icons/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      font-family: var(--font-sans);
+    }
+    
+    .cook-header {
+      background: var(--color-bg-secondary);
+      border-bottom: 1px solid var(--color-border);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .cook-layout {
+      display: flex;
+      flex-grow: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .cook-ingredients {
+      width: 320px;
+      background: var(--color-bg-secondary);
+      border-right: 1px solid var(--color-border);
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: transform var(--transition);
+    }
+    
+    .cook-main {
+      flex-grow: 1;
+      padding: 3rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-y: auto;
+      text-align: center;
+    }
+    
+    .step-number {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.5rem;
+    }
+    
+    .step-text {
+      font-size: 2.25rem;
+      font-weight: 600;
+      line-height: 1.5;
+      max-width: 850px;
+      margin: 0 auto;
+      color: var(--color-text);
+    }
+    
+    /* Clickable timer duration badges */
+    .cook-timer-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      border-bottom: 2px dashed var(--color-primary);
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background var(--transition);
+    }
+    .cook-timer-trigger:hover {
+      background: rgba(99, 102, 241, 0.25);
+    }
+    
+    .cook-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 850px;
+      width: 100%;
+      margin: 3rem auto 0 auto;
+      gap: 1.5rem;
+    }
+    
+    .btn-cook {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border-radius: var(--radius-lg);
+      flex-grow: 1;
+      max-width: 250px;
+    }
+    
+    .timer-drawer {
+      position: fixed;
+      bottom: 0;
+      right: 2rem;
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      border-bottom: none;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      width: 320px;
+      box-shadow: var(--shadow-xl);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transition: transform var(--transition);
+    }
+    
+    .timer-drawer-header {
+      padding: 0.75rem 1.25rem;
+      background: var(--color-bg-tertiary);
+      border-bottom: 1px solid var(--color-border);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .timer-list {
+      max-height: 240px;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .active-timer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background: var(--color-bg-tertiary);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+    }
+    
+    @media (max-width: 768px) {
+      .cook-layout {
+        flex-direction: column;
+      }
+      .cook-ingredients {
+        width: 100%;
+        height: 200px;
+        border-right: none;
+        border-bottom: 1px solid var(--color-border);
+      }
+      .step-text {
+        font-size: 1.5rem;
+      }
+      .btn-cook {
+        padding: 0.75rem 1.25rem;
+        font-size: 1rem;
+      }
+      .timer-drawer {
+        width: calc(100% - 2rem);
+        right: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="cook-header">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <img src="/images/placeholder.png" alt="Savor logo" style="width: 32px; height: 32px; object-fit: contain;">
+      <span style="font-weight: 800; font-size: 1.25rem; letter-spacing: -0.02em;">Savor</span>
+    </div>
+    
+    <div style="text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 50%;">
+      <span style="font-weight: 700; font-size: 1.05rem;"><%= recipe.title %></span>
+    </div>
+    
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <!-- Wake lock status indicator -->
+      <div id="wake-lock-badge" style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; background: var(--color-border); padding: 0.35rem 0.6rem; border-radius: var(--radius-sm); font-weight: 600;">
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-text-tertiary);" id="wake-lock-dot"></span>
+        <span id="wake-lock-text">Awake Disabled</span>
+      </div>
+
+      <!-- Voice control status indicator -->
+      <div id="voice-control-badge" onclick="toggleVoiceControl()" style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; background: var(--color-border); padding: 0.35rem 0.6rem; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; user-select: none;" title="Click to toggle Voice Controls">
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-text-tertiary);" id="voice-control-dot"></span>
+        <span id="voice-control-text">Voice Idle</span>
+      </div>
+      
+      <a href="/recipes/<%= recipe.id %>" class="btn btn-sm btn-secondary" style="font-weight: 700;">Exit</a>
+    </div>
+  </header>
+
+  <!-- Layout Container -->
+  <div class="cook-layout">
+    <!-- Sidebar Ingredients Checklist -->
+    <aside class="cook-ingredients" id="cook-ingredients-sidebar">
+      <h3 style="font-size: 1.1rem; font-weight: 800; border-bottom: 2px solid var(--color-border); padding-bottom: 0.5rem; margin: 0;">Ingredients</h3>
+      <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.5rem;">
+        <% 
+          const ingredients = (typeof recipe.ingredients === 'string') ? JSON.parse(recipe.ingredients) : recipe.ingredients || [];
+          ingredients.forEach((line, idx) => { 
+        %>
+          <label style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.95rem; line-height: 1.4; cursor: pointer; user-select: none;">
+            <input type="checkbox" style="width: 18px; height: 18px; margin-top: 0.1rem; cursor: pointer;">
+            <span><%= line %></span>
+          </label>
+        <% }) %>
+      </div>
+    </aside>
+
+    <!-- Main Content Slider -->
+    <main class="cook-main">
+      <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
+        <div id="step-number-el" class="step-number">Step 1 of 1</div>
+        <div id="step-text-el" class="step-text">No instructions listed for this recipe.</div>
+      </div>
+      
+      <!-- Navigation controls -->
+      <div class="cook-controls">
+        <button id="btn-prev" class="btn btn-secondary btn-cook" onclick="prevStep()">Previous</button>
+        <button id="btn-next" class="btn btn-primary btn-cook" onclick="nextStep()">Next</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Floating Timers Drawer -->
+  <div class="timer-drawer" id="cook-timer-drawer" style="transform: translateY(calc(100% - 40px));">
+    <div class="timer-drawer-header" onclick="toggleTimerDrawer()">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span style="font-weight: 700; font-size: 0.85rem;">Active Timers (<span id="timer-count">0</span>)</span>
+      </div>
+      <span id="drawer-toggle-arrow" style="font-weight: 700; font-size: 0.85rem;">▲</span>
+    </div>
+    
+    <div class="timer-list" id="active-timers-list">
+      <div style="text-align: center; color: var(--color-text-tertiary); font-size: 0.8rem; padding: 1rem 0;">
+        No active timers. Click a duration in the instructions to start one.
+      </div>
+    </div>
+  </div>
+
+  <!-- Load step data and wake lock / timer logic -->
+  <% 
+    const instructions = (typeof recipe.instructions === 'string') ? JSON.parse(recipe.instructions) : recipe.instructions || [];
+  %>
+  <script>
+    const recipeId = <%= recipe.id %>;
+    const recipeTitle = <%- JSON.stringify(recipe.title) %>;
+    const recipeSteps = <%- JSON.stringify(instructions) %>;
+  </script>
+  <script src="/js/cook-mode.js"></script>
+</body>
+</html>

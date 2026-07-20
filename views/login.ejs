@@ -1,0 +1,41 @@
+<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background-color: var(--bg-app); padding: 1.5rem;">
+  <div class="detail-section" style="max-width: 400px; width: 100%; box-shadow: var(--shadow-lg); padding: 3rem 2rem; border-radius: var(--radius-xl); border: 1px solid var(--border); background-color: var(--bg-surface-solid); text-align: center;">
+    
+    <!-- Crossed fork and spoon icon -->
+    <div style="background-color: var(--primary-glow); color: var(--primary); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8A6 6 0 0 1 6 8c0 4 6 13 6 13s6-9 6-13Z"/>
+        <circle cx="12" cy="8" r="2"/>
+      </svg>
+    </div>
+
+    <% if (typeof setupMode !== 'undefined' && setupMode) { %>
+      <h2 style="margin-bottom: 0.5rem; font-size: 1.75rem;">Welcome to Savor</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem;">Create your admin account to secure your recipes.</p>
+    <% } else { %>
+      <h2 style="margin-bottom: 0.5rem; font-size: 1.75rem;">Savor Container</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem;">Log in to access your recipe manager.</p>
+    <% } %>
+
+    <% if (error) { %>
+      <div style="background-color: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 0.75rem 1rem; border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 600; margin-bottom: 1.5rem; text-align: center; border: 1px solid rgba(239, 68, 68, 0.2);">
+        <% if (error === 'missing_fields') { %> Please fill in all fields. <% } else if (error === 'invalid') { %> Incorrect email or password. <% } else { %> <%= error %> <% } %>
+      </div>
+    <% } %>
+
+    <form action="/login" method="POST">
+      <div class="form-group" style="text-align: left; margin-bottom: 1rem;">
+        <label for="login-email" class="form-label">Email</label>
+        <input type="email" id="login-email" name="email" class="form-control" placeholder="admin@example.com" required autofocus style="padding: 0.75rem;">
+      </div>
+      <div class="form-group" style="text-align: left;">
+        <label for="login-password" class="form-label">Password</label>
+        <input type="password" id="login-password" name="password" class="form-control" placeholder="••••••••" required style="padding: 0.75rem;">
+      </div>
+      
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 0.85rem;">
+        <%= (typeof setupMode !== 'undefined' && setupMode) ? 'Create Admin Account' : 'Log In' %>
+      </button>
+    </form>
+  </div>
+</div>

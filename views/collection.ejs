@@ -1,0 +1,173 @@
+<div style="display: flex; flex-direction: column; gap: 2rem;">
+  <!-- Collection Header Banner -->
+  <div class="detail-section" style="border-left: 8px solid <%= collection.color %>; display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5rem; flex-wrap: wrap;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+        <span style="background-color: <%= collection.color %>; color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+          <!-- Simple fallback icon check -->
+          <%= collection.name.charAt(0).toUpperCase() %>
+        </span>
+        <h2><%= collection.name %></h2>
+      </div>
+      <% if (collection.description) { %>
+        <p style="color: var(--text-secondary);"><%= collection.description %></p>
+      <% } %>
+    </div>
+    
+    <div class="flex gap-2">
+      <button class="btn btn-secondary btn-sm" onclick="openEditCollectionModal()" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Rename</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmDeleteCollection(<%= collection.id %>)" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Delete</button>
+    </div>
+  </div>
+
+  <!-- Recipes inside collection -->
+  <div>
+    <div class="flex justify-between items-center mb-4">
+      <h3>Recipes (<%= recipes.total || 0 %>)</h3>
+      <% if (recipes.recipes && recipes.recipes.length > 1) { %>
+        <button class="btn btn-secondary btn-sm" id="toggle-reorder-btn" onclick="toggleRecipeReordering()" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+          Reorder Recipes
+        </button>
+      <% } %>
+    </div>
+
+    <!-- Reorder Sortable List (Hidden by default, shown when Reorder toggled) -->
+    <div id="recipes-reorder-list" data-sortable="recipe" data-collection-id="<%= collection.id %>" style="display: none; max-width: 600px;">
+      <% if (recipes.recipes && recipes.recipes.length > 0) { %>
+        <% recipes.recipes.forEach(recipe => { %>
+          <div class="sortable-item" data-sortable-id="<%= recipe.id %>" data-sortable-type="recipe" draggable="true">
+            <span class="drag-handle" style="margin-right: 0.75rem; cursor: grab;">::</span>
+            <span style="font-weight: 600;"><%= recipe.title %></span>
+          </div>
+        <% }) %>
+      <% } %>
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <button class="btn btn-primary btn-sm" onclick="saveRecipeOrder(<%= collection.id %>)">Save Order</button>
+        <button class="btn btn-secondary btn-sm" onclick="toggleRecipeReordering()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Normal Grid Layout -->
+    <div id="recipes-normal-grid">
+      <% if (!recipes.recipes || recipes.recipes.length === 0) { %>
+        <div class="empty-state detail-section">
+          <img src="/images/placeholder.png" alt="No recipes" style="width: 100px; height: 100px; opacity: 0.15; margin: 0 auto 1.5rem auto; display: block; object-fit: contain;">
+          <h3>No recipes in this collection</h3>
+          <p>Go to recipes and assign them to this collection, or create a new one.</p>
+          <a href="/recipes/new" class="btn btn-primary">Create a Recipe</a>
+        </div>
+      <% } else { %>
+        <div class="recipe-grid">
+          <% recipes.recipes.forEach(recipe => { %>
+            <%- include('partials/recipe-card', { recipe: recipe, formatDuration: formatDuration }) %>
+          <% }) %>
+        </div>
+        
+        <!-- Pagination -->
+        <% if (recipes.totalPages > 1) { %>
+          <div class="flex justify-between items-center mt-4" style="margin-top: 2.5rem;">
+            <a href="?page=<%= recipes.page - 1 %>" class="btn btn-secondary btn-sm <%= recipes.page <= 1 ? 'disabled' : '' %>" style="pointer-events: <%= recipes.page <= 1 ? 'none' : 'auto' %>; opacity: <%= recipes.page <= 1 ? 0.5 : 1 %>;">&larr; Previous</a>
+            <span>Page <%= recipes.page %> of <%= recipes.totalPages %></span>
+            <a href="?page=<%= recipes.page + 1 %>" class="btn btn-secondary btn-sm <%= recipes.page >= recipes.totalPages ? 'disabled' : '' %>" style="pointer-events: <%= recipes.page >= recipes.totalPages ? 'none' : 'auto' %>; opacity: <%= recipes.page >= recipes.totalPages ? 0.5 : 1 %>;">Next &rarr;</a>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Collection Modal -->
+<div class="modal-overlay" id="edit-collection-modal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3>Rename Collection</h3>
+      <button class="modal-close" onclick="closeModal('edit-collection-modal')">&times;</button>
+    </div>
+    <form action="/collections/<%= collection.id %>" method="POST">
+      <input type="hidden" name="_method" value="PUT">
+      <div class="form-group">
+        <label for="edit-collection-name" class="form-label">Collection Name</label>
+        <input type="text" id="edit-collection-name" name="name" class="form-control" value="<%= collection.name %>" required>
+      </div>
+      <div class="form-group">
+        <label for="edit-collection-desc" class="form-label">Description (Optional)</label>
+        <textarea id="edit-collection-desc" name="description" class="form-control"><%= collection.description || '' %></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Theme Color</label>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <% const colors = ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#64748b']; %>
+          <% colors.forEach((color) => { %>
+            <label style="width: 32px; height: 32px; border-radius: 50%; background: <%= color %>; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border: 2px solid transparent; transition: transform var(--transition-fast);">
+              <input type="radio" name="color" value="<%= color %>" <%= collection.color === color ? 'checked' : '' %> style="opacity: 0; position: absolute; width: 0; height: 0;">
+              <span class="color-check-indicator" style="display: none; color: #fff;">✓</span>
+            </label>
+          <% }) %>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('edit-collection-modal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openEditCollectionModal() {
+    openModal('edit-collection-modal');
+  }
+
+  function confirmDeleteCollection(id) {
+    const modal = document.getElementById('confirm-delete-modal');
+    const form = document.getElementById('confirm-delete-form');
+    const methodInput = document.getElementById('confirm-delete-method');
+    const message = document.getElementById('confirm-delete-message');
+    
+    message.innerText = 'Are you sure you want to delete this collection? The recipes in it will NOT be deleted, they will just become uncollected.';
+    form.action = '/collections/' + id;
+    methodInput.value = 'DELETE';
+    
+    openModal('confirm-delete-modal');
+  }
+
+  function toggleRecipeReordering() {
+    const normalGrid = document.getElementById('recipes-normal-grid');
+    const reorderList = document.getElementById('recipes-reorder-list');
+    const toggleBtn = document.getElementById('toggle-reorder-btn');
+    
+    if (reorderList.style.display === 'none') {
+      reorderList.style.display = 'block';
+      normalGrid.style.display = 'none';
+      toggleBtn.innerText = 'Back to Grid';
+      // Enable handles
+      document.querySelectorAll('#recipes-reorder-list .drag-handle').forEach(h => h.style.display = 'inline');
+    } else {
+      reorderList.style.display = 'none';
+      normalGrid.style.display = 'block';
+      toggleBtn.innerText = 'Reorder Recipes';
+    }
+  }
+
+  async function saveRecipeOrder(collectionId) {
+    const items = document.querySelectorAll('#recipes-reorder-list .sortable-item');
+    const ids = Array.from(items).map(item => parseInt(item.getAttribute('data-sortable-id'), 10));
+    
+    try {
+      const response = await fetch(`/api/collections/${collectionId}/recipes/reorder`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: ids })
+      });
+      
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        alert('Failed to save recipe order.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred while saving the recipe order.');
+    }
+  }
+</script>

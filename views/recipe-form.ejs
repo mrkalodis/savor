@@ -1,0 +1,208 @@
+<div class="detail-section" style="max-width: 800px; margin: 0 auto;">
+  <div class="flex justify-between items-center mb-4">
+    <h2><%= mode === 'create' ? 'Create Recipe' : 'Edit Recipe' %></h2>
+    <a href="<%= mode === 'create' ? '/' : '/recipes/' + recipe.id %>" class="btn btn-secondary btn-sm">Cancel</a>
+  </div>
+
+  <!-- Form -->
+  <form action="<%= mode === 'create' ? '/recipes' : '/recipes/' + recipe.id %>" method="POST" enctype="multipart/form-data">
+    <% if (mode === 'edit') { %>
+      <input type="hidden" name="_method" value="PUT">
+    <% } %>
+
+    <div class="form-group">
+      <label for="title" class="form-label">Recipe Title *</label>
+      <input type="text" id="title" name="title" class="form-control" placeholder="e.g. Classic Margherita Pizza" value="<%= recipe.title || '' %>" required>
+    </div>
+
+    <div class="form-group">
+      <label for="description" class="form-label">Short Description</label>
+      <textarea id="description" name="description" class="form-control" placeholder="Describe this dish..."><%= recipe.description || '' %></textarea>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+      <div class="form-group">
+        <label for="collection_id" class="form-label">Collection</label>
+        <select id="collection_id" name="collection_id" class="form-control">
+          <option value="">Uncollected</option>
+          <% collections.forEach(c => { %>
+            <option value="<%= c.id %>" <%= recipe.collection_id == c.id ? 'selected' : '' %>><%= c.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="servings" class="form-label">Servings</label>
+        <input type="text" id="servings" name="servings" class="form-control" placeholder="e.g. 4 servings, 1 loaf" value="<%= recipe.servings || '' %>">
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+      <div class="form-group">
+        <label for="prep_time" class="form-label">Prep Time (mins)</label>
+        <input type="number" id="prep_time" name="prep_time" class="form-control" placeholder="e.g. 15" value="<%= recipe.prep_time || '' %>" min="0">
+      </div>
+      <div class="form-group">
+        <label for="cook_time" class="form-label">Cook Time (mins)</label>
+        <input type="number" id="cook_time" name="cook_time" class="form-control" placeholder="e.g. 30" value="<%= recipe.cook_time || '' %>" min="0">
+      </div>
+      <div class="form-group">
+        <label for="total_time" class="form-label">Total Time (mins)</label>
+        <input type="number" id="total_time" name="total_time" class="form-control" placeholder="e.g. 45" value="<%= recipe.total_time || '' %>" min="0">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="ingredients" class="form-label">Ingredients (one per line) *</label>
+      <% 
+        let ingText = '';
+        if (recipe.ingredients) {
+          const ingArray = (typeof recipe.ingredients === 'string') ? JSON.parse(recipe.ingredients) : recipe.ingredients;
+          if (Array.isArray(ingArray)) ingText = ingArray.join('\n');
+        }
+      %>
+      <textarea id="ingredients" name="ingredients" class="form-control" placeholder="2 cups flour&#10;1 tsp baking soda&#10;3 ripe bananas" required><%= ingText %></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="instructions" class="form-label">Instructions (one step per line) *</label>
+      <% 
+        let instText = '';
+        if (recipe.instructions) {
+          const instArray = (typeof recipe.instructions === 'string') ? JSON.parse(recipe.instructions) : recipe.instructions;
+          if (Array.isArray(instArray)) instText = instArray.join('\n');
+        }
+      %>
+      <textarea id="instructions" name="instructions" class="form-control" placeholder="Preheat oven to 350 degrees F.&#10;Stir together butter and sugar.&#10;Bake for 60 minutes." required><%= instText %></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="notes" class="form-label">Notes (Optional)</label>
+      <textarea id="notes" name="notes" class="form-control" placeholder="Tips, substitutes, or storage instructions..."><%= recipe.notes || '' %></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="tags" class="form-label">Tags (comma-separated)</label>
+      <% 
+        let tagsText = '';
+        if (recipe.tags) {
+          tagsText = recipe.tags.map(t => t.name).join(', ');
+        }
+      %>
+      <input type="text" id="tags" name="tags" class="form-control" placeholder="e.g. baking, banana, dessert" value="<%= tagsText %>">
+    </div>
+
+    <div class="form-group">
+      <label for="source_url" class="form-label">Source URL (Optional)</label>
+      <input type="url" id="source_url" name="source_url" class="form-control" placeholder="https://example.com/recipe" value="<%= recipe.source_url || '' %>">
+    </div>
+
+    <div class="form-group">
+      <label for="image-upload" class="form-label">Recipe Image</label>
+      <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;">
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1;">
+          <input type="file" id="image-upload" name="image" class="form-control" accept="image/*" style="width: auto; width: 100%;">
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-ocr-scan" style="display: none; align-items: center; gap: 0.35rem; width: fit-content;" onclick="runOcrScan()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+            <span>Scan Text from Image (OCR)</span>
+          </button>
+          <div id="ocr-status" style="font-size: 0.8rem; color: var(--color-primary); display: none; font-weight: 600;"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+          <div id="image-preview-container" style="width: 100px; height: 100px; border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: var(--bg-tertiary);">
+            <% if (recipe.image_path) { %>
+              <img src="<%= recipe.image_path %>" alt="Preview" id="image-preview" style="width: 100%; height: 100%; object-fit: cover;">
+            <% } else { %>
+              <span style="font-size: 0.75rem; color: var(--text-muted); text-align: center; padding: 0.5rem;" id="image-preview-placeholder">No image selected</span>
+              <img id="image-preview" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+            <% } %>
+          </div>
+          <% if (recipe.image_path) { %>
+            <div style="display: flex; align-items: center; gap: 0.35rem; margin-top: 0.25rem;">
+              <input type="checkbox" id="remove-image" name="remove_image" value="1" style="width: auto; margin: 0; cursor: pointer;">
+              <label for="remove-image" style="font-size: 0.75rem; color: var(--danger); cursor: pointer; margin: 0; user-select: none;">Remove image</label>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
+      <a href="<%= mode === 'create' ? '/' : '/recipes/' + recipe.id %>" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-primary"><%= mode === 'create' ? 'Create Recipe' : 'Save Changes' %></button>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+  // Simple image file input preview and OCR button toggle
+  const fileInput = document.getElementById('image-upload');
+  const ocrBtn = document.getElementById('btn-ocr-scan');
+  
+  fileInput.addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('image-preview');
+    const placeholder = document.getElementById('image-preview-placeholder');
+    
+    if (file) {
+      ocrBtn.style.display = 'inline-flex';
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+      }
+      reader.readAsDataURL(file);
+    } else {
+      ocrBtn.style.display = 'none';
+      preview.style.display = 'none';
+      if (placeholder) placeholder.style.display = 'block';
+    }
+  });
+
+  // OCR scanning execution
+  async function runOcrScan() {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const statusEl = document.getElementById('ocr-status');
+    statusEl.style.display = 'block';
+    statusEl.textContent = 'Initializing OCR engine...';
+    ocrBtn.disabled = true;
+
+    try {
+      const result = await Tesseract.recognize(file, 'eng', {
+        logger: m => {
+          if (m.status === 'recognizing') {
+            statusEl.textContent = `Scanning: ${Math.round(m.progress * 100)}%`;
+          }
+        }
+      });
+
+      const text = result.data.text;
+      statusEl.style.display = 'none';
+      ocrBtn.disabled = false;
+
+      if (!text || !text.trim()) {
+        alert('Could not extract any text from this image. Please ensure the words are clear.');
+        return;
+      }
+
+      // Prompt to choose target text area
+      const dest = confirm("Scan complete! Click OK to insert into Ingredients list, or Cancel to insert into Instructions list.");
+      if (dest) {
+        const box = document.getElementById('ingredients');
+        box.value = (box.value + '\n' + text).trim();
+      } else {
+        const box = document.getElementById('instructions');
+        box.value = (box.value + '\n' + text).trim();
+      }
+      showToast('Text scanned and inserted!', 'success');
+    } catch (err) {
+      console.error(err);
+      statusEl.textContent = 'Scanning failed.';
+      ocrBtn.disabled = false;
+      alert('Failed to scan image: ' + err.message);
+    }
+  }
+</script>

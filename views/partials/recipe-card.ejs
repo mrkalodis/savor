@@ -1,0 +1,55 @@
+<%
+  // Parse tags for display on card
+  let cardTags = [];
+  try {
+    if (recipe.tags) {
+      cardTags = (typeof recipe.tags === 'string') ? JSON.parse(recipe.tags) : recipe.tags;
+    }
+  } catch(e) { cardTags = []; }
+%>
+<div class="recipe-card" onclick="window.location.href='/recipes/<%= recipe.id %>'">
+
+  <% if (recipe.status && recipe.status !== 'active') { %>
+    <span class="card-status-badge <%= recipe.status %>"><%= recipe.status %></span>
+  <% } %>
+
+  <!-- Favorite button — floating top-right -->
+  <form action="/recipes/<%= recipe.id %>/favorite" method="POST" class="favorite-form" onclick="event.stopPropagation();" style="position: absolute; top: 0.75rem; right: 0.75rem; z-index: 10;">
+    <button type="submit" class="favorite-btn <%= recipe.is_favorite ? 'active' : '' %>" aria-label="Toggle Favorite">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="<%= recipe.is_favorite ? 'currentColor' : 'none' %>" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></polygon></svg>
+    </button>
+  </form>
+
+  <!-- Full-bleed image or placeholder -->
+  <% if (recipe.image_path) { %>
+    <img src="<%= recipe.image_path %>" alt="<%= recipe.title %>" class="recipe-card-image" loading="lazy">
+  <% } else { %>
+    <div class="recipe-card-placeholder">🍽️</div>
+  <% } %>
+
+  <!-- Gradient overlay for text legibility -->
+  <div class="recipe-card-overlay"></div>
+
+  <!-- Text content floats at the bottom -->
+  <div class="recipe-card-content">
+    <h3 class="recipe-card-title"><%= recipe.title %></h3>
+    <div class="recipe-card-meta-chips">
+      <% if (recipe.total_time) { %>
+        <span class="recipe-chip">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <%= formatDuration(recipe.total_time) %>
+        </span>
+      <% } %>
+      <% if (recipe.servings) { %>
+        <span class="recipe-chip">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          <%= recipe.servings %>
+        </span>
+      <% } %>
+      <% if (cardTags && cardTags.length > 0) { %>
+        <span class="recipe-chip"><%= typeof cardTags[0] === 'string' ? cardTags[0] : (cardTags[0].name || '') %></span>
+      <% } %>
+    </div>
+  </div>
+
+</div>

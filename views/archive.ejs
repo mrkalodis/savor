@@ -1,0 +1,99 @@
+<div style="display: flex; flex-direction: column; gap: 2rem;">
+  <div>
+    <h2><%= title %></h2>
+    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem;">
+      <% if (status === 'archived') { %>
+        Archived recipes are kept safe in Savor but hidden from your regular dashboard and lists. You can search or restore them anytime.
+      <% } else { %>
+        Deleted recipes are moved here. You can restore them or permanently delete them along with their local image files.
+      <% } %>
+    </p>
+  </div>
+
+  <% if (!recipes.recipes || recipes.recipes.length === 0) { %>
+    <div class="empty-state detail-section">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="21 8 21 21 3 21 3 8"/>
+        <rect x="1" y="3" width="22" height="5" rx="1"/>
+      </svg>
+      <h3>No recipes here</h3>
+      <p>This folder is currently empty.</p>
+    </div>
+  <% } else { %>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+      <% recipes.recipes.forEach(recipe => { %>
+        <div class="recipe-card" style="opacity: 0.85; filter: grayscale(20%); height: 420px;" onclick="window.location.href='/recipes/<%= recipe.id %>'">
+          <span class="card-status-badge <%= status %>"><%= status %></span>
+          
+          <% if (recipe.image_path) { %>
+            <img src="<%= recipe.image_path %>" alt="<%= recipe.title %>" class="recipe-card-image" loading="lazy">
+          <% } else { %>
+            <div class="recipe-card-placeholder">
+              <img src="/images/placeholder.png" alt="No image" style="width: 80px; height: 80px; opacity: 0.15; object-fit: contain;">
+            </div>
+          <% } %>
+
+          <div class="recipe-card-content" style="height: 240px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div class="recipe-card-header">
+                <h3 class="recipe-card-title"><%= recipe.title %></h3>
+              </div>
+              <% if (recipe.description) { %>
+                <p class="recipe-card-desc" style="-webkit-line-clamp: 2;"><%= recipe.description %></p>
+              <% } %>
+            </div>
+
+            <!-- Custom action buttons inside EJS card -->
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;" onclick="event.stopPropagation();">
+              <form action="/recipes/<%= recipe.id %>/restore" method="POST" style="flex: 1;">
+                <button type="submit" class="btn btn-secondary btn-sm" style="width: 100%; padding: 0.4rem; font-size: 0.8rem;">Restore</button>
+              </form>
+              
+              <% if (status === 'archived') { %>
+                <form action="/recipes/<%= recipe.id %>/delete" method="POST" style="flex: 1;">
+                  <button type="submit" class="btn btn-danger btn-sm" style="width: 100%; padding: 0.4rem; font-size: 0.8rem;">Trash</button>
+                </form>
+              <% } else { %>
+                <button type="button" class="btn btn-danger btn-sm" onclick="confirmPermanentDelete(<%= recipe.id %>)" style="flex: 1; padding: 0.4rem; font-size: 0.8rem;">Delete</button>
+              <% } %>
+            </div>
+
+            <div class="recipe-card-footer" style="margin-top: 0.75rem;">
+              <div class="recipe-card-meta">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span><%= recipe.total_time ? formatDuration(recipe.total_time) : '-- min' %></span>
+              </div>
+              <% if (recipe.servings) { %>
+                <span><%= recipe.servings %></span>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <!-- Pagination -->
+    <% if (recipes.totalPages > 1) { %>
+      <div class="flex justify-between items-center mt-4" style="margin-top: 2.5rem;">
+        <a href="?page=<%= recipes.page - 1 %>" class="btn btn-secondary btn-sm <%= recipes.page <= 1 ? 'disabled' : '' %>" style="pointer-events: <%= recipes.page <= 1 ? 'none' : 'auto' %>; opacity: <%= recipes.page <= 1 ? 0.5 : 1 %>;">&larr; Previous</a>
+        <span>Page <%= recipes.page %> of <%= recipes.totalPages %></span>
+        <a href="?page=<%= recipes.page + 1 %>" class="btn btn-secondary btn-sm <%= recipes.page >= recipes.totalPages ? 'disabled' : '' %>" style="pointer-events: <%= recipes.page >= recipes.totalPages ? 'none' : 'auto' %>; opacity: <%= recipes.page >= recipes.totalPages ? 0.5 : 1 %>;">Next &rarr;</a>
+      </div>
+    <% } %>
+  <% } %>
+</div>
+
+<script>
+  function confirmPermanentDelete(id) {
+    const modal = document.getElementById('confirm-delete-modal');
+    const form = document.getElementById('confirm-delete-form');
+    const methodInput = document.getElementById('confirm-delete-method');
+    const message = document.getElementById('confirm-delete-message');
+    
+    message.innerText = 'Are you sure you want to PERMANENTLY delete this recipe? The SQLite entry and its local images will be deleted. This cannot be undone.';
+    form.action = '/recipes/' + id;
+    methodInput.value = 'DELETE';
+    
+    openModal('confirm-delete-modal');
+  }
+</script>

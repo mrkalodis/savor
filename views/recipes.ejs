@@ -1,0 +1,94 @@
+<div style="display: flex; flex-direction: column; gap: 2rem;">
+  <!-- Header section -->
+  <div class="flex justify-between items-center" style="flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>
+        <% if (currentCollection) { %>
+          <% const col = collections.find(c => c.id == currentCollection); %>
+          Collection: <%= col ? col.name : 'Recipes' %>
+        <% } else if (currentTag) { %>
+          Tag: #<%= currentTag %>
+        <% } else if (typeof title !== 'undefined') { %>
+          <%= title %>
+        <% } else { %>
+          Recipes
+        <% } %>
+      </h2>
+      <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem;">
+        Browse your self-hosted catalog.
+      </p>
+    </div>
+    
+    <div class="flex gap-2">
+      <a href="/recipes/new?import=1" class="btn btn-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span>Import</span>
+      </a>
+      <a href="/recipes/new" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Add Recipe</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Filter tag chips row if viewing tag, collection, or search query -->
+  <% if (currentTag || currentCollection || (typeof currentSearch !== 'undefined' && currentSearch)) { %>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: -1rem;">
+      <% if (currentCollection) { %>
+        <span class="tag" style="background-color: var(--primary-glow); color: var(--primary); display: inline-flex; align-items: center; gap: 0.5rem; border-radius: var(--radius-sm);">
+          <span>Collection Filter</span>
+          <a href="/recipes" style="font-weight: bold; color: var(--danger); font-size: 1.1rem; line-height: 1;">&times;</a>
+        </span>
+      <% } %>
+      <% if (currentTag) { %>
+        <span class="tag" style="background-color: var(--primary-glow); color: var(--primary); display: inline-flex; align-items: center; gap: 0.5rem; border-radius: var(--radius-sm);">
+          <span>#<%= currentTag %></span>
+          <a href="/recipes" style="font-weight: bold; color: var(--danger); font-size: 1.1rem; line-height: 1;">&times;</a>
+        </span>
+      <% } %>
+      <% if (typeof currentSearch !== 'undefined' && currentSearch) { %>
+        <span class="tag" style="background-color: var(--primary-glow); color: var(--primary); display: inline-flex; align-items: center; gap: 0.5rem; border-radius: var(--radius-sm);">
+          <span>Search: "<%= currentSearch %>"</span>
+          <a href="/recipes" style="font-weight: bold; color: var(--danger); font-size: 1.1rem; line-height: 1;">&times;</a>
+        </span>
+      <% } %>
+    </div>
+  <% } %>
+
+  <!-- Recipe list -->
+  <% if (!recipes.recipes || recipes.recipes.length === 0) { %>
+    <div class="empty-state detail-section">
+      <img src="/images/placeholder.png" alt="No recipes" style="width: 100px; height: 100px; opacity: 0.15; margin: 0 auto 1.5rem auto; display: block; object-fit: contain;">
+      <h3>No recipes found</h3>
+      <p>Try clearing your filters or create a new recipe to start your catalog.</p>
+      <a href="/recipes/new" class="btn btn-primary">Create a Recipe</a>
+    </div>
+  <% } else { %>
+    <div class="recipe-grid">
+      <% recipes.recipes.forEach(recipe => { %>
+        <%- include('partials/recipe-card', { recipe: recipe, formatDuration: formatDuration }) %>
+      <% }) %>
+    </div>
+
+    <!-- Pagination -->
+    <% if (recipes.totalPages > 1) { %>
+      <div class="flex justify-between items-center mt-4" style="margin-top: 3rem;">
+        <% 
+          let prevUrl = `?page=${recipes.page - 1}`;
+          let nextUrl = `?page=${recipes.page + 1}`;
+          if (currentCollection) {
+            prevUrl += `&collection=${currentCollection}`;
+            nextUrl += `&collection=${currentCollection}`;
+          }
+          if (currentTag) {
+            prevUrl += `&tag=${currentTag}`;
+            nextUrl += `&tag=${currentTag}`;
+          }
+        %>
+        <a href="<%= prevUrl %>" class="btn btn-secondary btn-sm <%= recipes.page <= 1 ? 'disabled' : '' %>" style="pointer-events: <%= recipes.page <= 1 ? 'none' : 'auto' %>; opacity: <%= recipes.page <= 1 ? 0.5 : 1 %>;">&larr; Previous</a>
+        <span>Page <%= recipes.page %> of <%= recipes.totalPages %></span>
+        <a href="<%= nextUrl %>" class="btn btn-secondary btn-sm <%= recipes.page >= recipes.totalPages ? 'disabled' : '' %>" style="pointer-events: <%= recipes.page >= recipes.totalPages ? 'none' : 'auto' %>; opacity: <%= recipes.page >= recipes.totalPages ? 0.5 : 1 %>;">Next &rarr;</a>
+      </div>
+    <% } %>
+  <% } %>
+</div>
