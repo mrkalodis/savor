@@ -13,8 +13,12 @@ var_ram="2048"
 var_disk="8"
 var_os="ubuntu"
 var_version="24.04"
+var_unprivileged="1"
 
-header_info
+header_info "$APP"
+variables
+color
+catch_errors
 
 function update_script() {
   header_info
@@ -28,10 +32,9 @@ function update_script() {
   exit
 }
 
-start_script
-
-# Build container
+start
 build_container
+description
 
 # Complete
 msg_ok "Savor LXC Container Created successfully."
