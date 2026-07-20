@@ -3,7 +3,7 @@
 # Sourced from Proxmox Helper Scripts conventions
 
 # Sourced function framework
-source <(curl -s https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/build.func)
+source <(curl -s https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/build.func)
 
 # App configurations
 APP="Savor"

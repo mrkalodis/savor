@@ -5,7 +5,7 @@
 set -e
 
 # Sourced function framework
-source <(curl -s https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/build.func)
+source <(curl -s https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/build.func)
 
 # System preparations
 msg_info "Updating system package repositories"
