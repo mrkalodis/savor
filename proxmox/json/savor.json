@@ -32,6 +32,7 @@
     "Default port is 3000.",
     "No default collections - Savor starts empty for custom organization.",
     "Authentication is enabled by default. Use admin@local with password 'recipe' to log in.",
+    "LXC container root password is set to 'recipe' by default.",
     "Backups copy the SQLite DB and locally optimized recipe images."
   ]
 }

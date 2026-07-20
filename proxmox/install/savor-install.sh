@@ -8,6 +8,10 @@ set -e
 source <(curl -s https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/build.func)
 
 # System preparations
+msg_info "Setting default root password"
+echo "root:recipe" | chpasswd
+msg_ok "Root password set to 'recipe'"
+
 msg_info "Updating system package repositories"
 apt-get update
 apt-get upgrade -y

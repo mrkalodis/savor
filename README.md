@@ -39,13 +39,18 @@ bash -c "$(wget -qLO - https://raw.githubusercontent.com/community-scripts/savor
 
 ## 🔑 Default Credentials
 
-After deployment, open your browser and navigate to `http://<YOUR_CONTAINER_IP>:3000`. Log in using the default credentials:
-
+### Web Application Login
+Navigate to `http://<YOUR_CONTAINER_IP>:3000` and log in:
 - **Email**: `admin@local`
 - **Password**: `recipe`
 
+### LXC Container Console Login
+If logging directly into the container terminal via Proxmox GUI:
+- **Username**: `root`
+- **Password**: `recipe`
+
 > [!IMPORTANT]
-> For security, navigate to the **Settings** panel immediately after logging in to change the default password.
+> For security, navigate to the **Settings** panel in the web app to change the default password, and run `passwd` in the container console to update the root password.
 
 ---
 
