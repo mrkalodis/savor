@@ -8,6 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
   initModals();
   initFavoriteButtons();
   initTagAutocompletes();
+
+  // Register Service Worker for PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(() => console.log('[PWA] Service Worker registered successfully'))
+      .catch(err => console.warn('[PWA] Service Worker registration failed:', err));
+  }
 });
 
 // ============================================================
@@ -77,18 +84,25 @@ function initTheme() {
 function initMobileNav() {
   const toggleBtn = document.getElementById('mobile-menu-toggle');
   const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
   
   if (!toggleBtn || !sidebar) return;
 
   toggleBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    sidebar.classList.toggle('open');
+    const isOpen = sidebar.classList.toggle('open');
+    if (overlay) {
+      overlay.classList.toggle('open', isOpen);
+    }
   });
 
   // Close sidebar clicking outside
   document.addEventListener('click', (e) => {
-    if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== toggleBtn) {
+    if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
       sidebar.classList.remove('open');
+      if (overlay) {
+        overlay.classList.remove('open');
+      }
     }
   });
 }

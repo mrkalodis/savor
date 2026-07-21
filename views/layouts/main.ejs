@@ -146,8 +146,8 @@
     <div class="toast-container" id="toast-container"></div>
     <%- include('../partials/modal', locals) %>
   <% } %>
-  <script src="/js/app.js"></script>
-  <script src="/js/drag-drop.js"></script>
+  <script src="/js/app.js?v=<%= Date.now() %>"></script>
+  <script src="/js/drag-drop.js?v=<%= Date.now() %>"></script>
 
   <script>
     // Pin / Unpin Sidebar handler
@@ -180,18 +180,8 @@
       document.getElementById('sidebar').classList.remove('open');
       document.getElementById('sidebar-overlay').classList.remove('open');
     }
-    // Patch the existing mobile-menu-toggle to also show the overlay
-    document.addEventListener('DOMContentLoaded', function() {
-      const toggle = document.getElementById('mobile-menu-toggle');
-      if (toggle) {
-        toggle.addEventListener('click', function() {
-          const sidebar = document.getElementById('sidebar');
-          const overlay = document.getElementById('sidebar-overlay');
-          const isOpen = sidebar.classList.toggle('open');
-          overlay.classList.toggle('open', isOpen);
-        });
-      }
 
+    document.addEventListener('DOMContentLoaded', function() {
       // Initialize Pin Button UI state on load
       const isPinned = localStorage.getItem('sidebarPinned') === 'true';
       updatePinButtonUI(isPinned);
