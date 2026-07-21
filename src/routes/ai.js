@@ -19,6 +19,7 @@ router.post('/api/ai/chat', async (req, res) => {
 
     const aiEndpoint = settingsService.get(req.user.id, 'ai_endpoint') || 'http://localhost:11434';
     const aiModel = settingsService.get(req.user.id, 'ai_model') || 'qwen2.5:0.5b';
+    const aiApiKey = settingsService.get(req.user.id, 'ai_api_key') || '';
 
     const { message, history = [], context } = req.body;
 
@@ -38,7 +39,8 @@ router.post('/api/ai/chat', async (req, res) => {
       'Ingredients:\n- [First ingredient]\n- [Second ingredient]\n\n' +
       'Instructions:\n1. [First step]\n2. [Second step]\n\n' +
       '3. EXPLAIN AFTER: If you modified or altered the recipe, write the new recipe at the top using the structured format, and write your conversational explanation at the very end of your response (after the recipe block). If the user is just asking a simple question (e.g. "Can you see the recipe?"), answer normally without outputting the recipe.\n' +
-      '4. COOKING FOCUS & HEADER BAN: You are a kitchen assistant. If the user talks about completely unrelated topics (like bathroom habits, non-cooking chores, etc.), do NOT try to frame it as a recipe or make it about food. Just reply with a normal, polite conversational response. NEVER print the system rule names (like "EXPLAIN AFTER:" or "ASK FOR SERVINGS:") in your responses.';
+      '4. COOKING FOCUS & HEADER BAN: You are a kitchen assistant. If the user talks about completely unrelated topics (like bathroom habits, non-cooking chores, etc.), do NOT try to frame it as a recipe or make it about food. Just reply with a normal, polite conversational response. NEVER print the system rule names (like "EXPLAIN AFTER:" or "ASK FOR SERVINGS:") in your responses.\n' +
+      '5. LOGICAL CONSISTENCY: Every ingredient and instruction step you write MUST match the recipe title. For example, do not include words like "Chicken" or "Salmon" in the Title if they are not listed in the ingredients and instructions.';
     if (context) {
       systemContent += `\n\nCRITICAL CONTEXT: The user is currently viewing a recipe on their screen. You have full access to it. Here is the recipe text:\n${context}`;
     }
@@ -54,24 +56,56 @@ router.post('/api/ai/chat', async (req, res) => {
       { role: 'user', content: message }
     ];
 
-    const response = await fetch(`${aiEndpoint}/api/chat`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: aiModel,
-        messages: messages,
-        stream: true,
-        options: {
-          num_thread: 2
-        }
-      })
-    });
+    let response;
+    const isRemoteAPI = !!aiApiKey;
+
+    if (isRemoteAPI) {
+      // Formulate endpoint URL for OpenAI completions
+      let completionsUrl = aiEndpoint;
+      if (!completionsUrl.endsWith('/chat/completions') && !completionsUrl.endsWith('/completions')) {
+        completionsUrl = completionsUrl.replace(/\/$/, '') + '/chat/completions';
+      }
+
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${aiApiKey}`
+      };
+
+      if (aiEndpoint.includes('openrouter.ai')) {
+        headers['HTTP-Referer'] = 'https://savor.local';
+        headers['X-Title'] = 'Savor Recipe Manager';
+      }
+
+      response = await fetch(completionsUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          model: aiModel,
+          messages: messages,
+          stream: true
+        })
+      });
+    } else {
+      // Default Ollama local endpoint
+      response = await fetch(`${aiEndpoint.replace(/\/$/, '')}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: aiModel,
+          messages: messages,
+          stream: true,
+          options: {
+            num_thread: 2
+          }
+        })
+      });
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Ollama API Error:', errorText);
+      console.error('AI API Error:', errorText);
       return res.status(502).json({ error: 'Failed to communicate with AI model.' });
     }
 
@@ -81,31 +115,59 @@ router.post('/api/ai/chat', async (req, res) => {
     const decoder = new TextDecoder('utf-8');
     let buffer = '';
 
-    for await (const chunk of response.body) {
-      buffer += decoder.decode(chunk, { stream: true });
-      let lines = buffer.split('\n');
-      buffer = lines.pop();
+    if (isRemoteAPI) {
+      // Parse SSE Event Stream (OpenAI / OpenRouter / Groq / Gemini)
+      for await (const chunk of response.body) {
+        buffer += decoder.decode(chunk, { stream: true });
+        let lines = buffer.split('\n');
+        buffer = lines.pop();
 
-      for (const line of lines) {
-        if (line.trim() === '') continue;
+        for (const line of lines) {
+          const cleanLine = line.trim();
+          if (cleanLine === '') continue;
+          if (cleanLine === 'data: [DONE]') continue;
+          if (cleanLine.startsWith('data: ')) {
+            try {
+              const jsonStr = cleanLine.substring(6);
+              const data = JSON.parse(jsonStr);
+              const content = data.choices && data.choices[0] && data.choices[0].delta && data.choices[0].delta.content;
+              if (content) {
+                res.write(content);
+              }
+            } catch (e) {
+              // Ignore partial parse boundaries
+            }
+          }
+        }
+      }
+    } else {
+      // Parse NDJSON Stream (Ollama default)
+      for await (const chunk of response.body) {
+        buffer += decoder.decode(chunk, { stream: true });
+        let lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          if (line.trim() === '') continue;
+          try {
+            const data = JSON.parse(line);
+            if (data.message && data.message.content) {
+              res.write(data.message.content);
+            }
+          } catch (e) {
+            console.error('Error parsing NDJSON line:', e);
+          }
+        }
+      }
+      
+      if (buffer.trim() !== '') {
         try {
-          const data = JSON.parse(line);
+          const data = JSON.parse(buffer);
           if (data.message && data.message.content) {
             res.write(data.message.content);
           }
-        } catch (e) {
-          console.error('Error parsing NDJSON line:', e);
-        }
+        } catch (e) {}
       }
-    }
-    
-    if (buffer.trim() !== '') {
-      try {
-        const data = JSON.parse(buffer);
-        if (data.message && data.message.content) {
-          res.write(data.message.content);
-        }
-      } catch (e) {}
     }
 
     res.end();

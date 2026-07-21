@@ -87,6 +87,7 @@ app.use((req, res, next) => {
     res.locals.aiEnabled = settingsService.get(req.user.id, 'ai_enabled') === '1';
     res.locals.aiEndpoint = settingsService.get(req.user.id, 'ai_endpoint') || 'http://localhost:11434';
     res.locals.aiModel = settingsService.get(req.user.id, 'ai_model') || 'qwen2.5:0.5b';
+    res.locals.aiApiKey = settingsService.get(req.user.id, 'ai_api_key') || '';
   } else {
     res.locals.theme = 'system';
     res.locals.activeAccent = 'purple';
@@ -97,6 +98,7 @@ app.use((req, res, next) => {
     res.locals.aiEnabled = false;
     res.locals.aiEndpoint = 'http://localhost:11434';
     res.locals.aiModel = 'qwen2.5:0.5b';
+    res.locals.aiApiKey = '';
   }
   
   next();

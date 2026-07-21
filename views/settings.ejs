@@ -152,9 +152,14 @@
           <input type="text" name="ai_endpoint" class="form-control" placeholder="http://localhost:11434" value="<%= locals.aiEndpoint || 'http://localhost:11434' %>">
         </div>
 
-        <div class="form-group" style="margin-bottom: 0;">
+        <div class="form-group">
           <label class="form-label">Model Name</label>
-          <input type="text" name="ai_model" class="form-control" placeholder="qwen2.5:1.5b" value="<%= locals.aiModel || 'qwen2.5:1.5b' %>">
+          <input type="text" name="ai_model" class="form-control" placeholder="qwen2.5:0.5b" value="<%= locals.aiModel || 'qwen2.5:0.5b' %>">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">API Key (Optional - for OpenRouter/Groq/Gemini/OpenAI)</label>
+          <input type="password" name="ai_api_key" class="form-control" placeholder="e.g. sk-..." value="<%= locals.aiApiKey || '' %>">
         </div>
       </div>
       
@@ -185,6 +190,40 @@
       <span style="font-size: 0.75rem; color: var(--text-secondary);">
         ← Drag this button to your Browser Bookmarks Bar
       </span>
+
+      <!-- Mobile alternative -->
+      <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: left; width: 100%;">
+        <h4 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 0.9rem;">📱 Using Mobile?</h4>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+          You can manually add the bookmarklet in your mobile browser:
+        </p>
+        <ol style="font-size: 0.78rem; color: var(--text-secondary); padding-left: 1.2rem; margin-bottom: 1rem; line-height: 1.5;">
+          <li>Bookmark this settings page (or any page) in your browser.</li>
+          <li>Edit the bookmark: rename it to <strong>Savor Importer</strong>.</li>
+          <li>Copy the code below, and paste it into the <strong>URL / Address</strong> field of the bookmark.</li>
+        </ol>
+        <div style="display: flex; gap: 0.5rem; max-width: 100%;">
+          <input type="text" readonly value="<%= _bkHref %>" style="flex-grow: 1; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-app); font-family: monospace; font-size: 0.7rem; color: var(--text-muted); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; width: 50px;" id="mobile-bookmarklet-code-settings">
+          <button class="btn btn-secondary btn-sm" onclick="copyBookmarkletCodeSettings()" style="padding: 0.5rem 1rem; font-size: 0.75rem; white-space: nowrap; border-radius: var(--radius-md);">Copy Code</button>
+        </div>
+      </div>
+
+      <script>
+        function copyBookmarkletCodeSettings() {
+          const input = document.getElementById('mobile-bookmarklet-code-settings');
+          input.select();
+          input.setSelectionRange(0, 99999);
+          navigator.clipboard.writeText(input.value)
+            .then(() => {
+              if (window.showToast) {
+                window.showToast('Bookmarklet code copied!', 'success');
+              } else {
+                alert('Bookmarklet code copied to clipboard!');
+              }
+            })
+            .catch(() => alert('Failed to copy. Please manually select and copy the code.'));
+        }
+      </script>
     </div>
   </div>
 
