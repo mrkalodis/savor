@@ -36,7 +36,8 @@ router.post('/api/ai/chat', async (req, res) => {
       'Prep Time: [Minutes, e.g. 15]\n' +
       'Cook Time: [Minutes, e.g. 30]\n' +
       'Ingredients:\n- [First ingredient]\n- [Second ingredient]\n\n' +
-      'Instructions:\n1. [First step]\n2. [Second step]';
+      'Instructions:\n1. [First step]\n2. [Second step]\n\n' +
+      '3. DETAILED STEPS: When writing the Instructions, be extremely detailed, thorough, and descriptive for each step. Provide specific cooking techniques, visual cues (e.g. "until golden brown and fragrant"), times, and temperatures where applicable. Never combine multiple major steps into one short line or skip details.';
     if (context) {
       systemContent += `\n\nCRITICAL CONTEXT: The user is currently viewing a recipe on their screen. The system has extracted the text of this recipe and provided it to you below. If the user asks if you can see their recipe, say YES and tell them you can see it. Do NOT say you cannot see it. Here is the recipe they are looking at:\n${context}`;
     }
