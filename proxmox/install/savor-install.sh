@@ -5,17 +5,19 @@
 set -e
 
 # Sourced function framework
-source <(curl -s https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/build.func)
+source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
+color
+verb_ip6
+catch_errors
+setting_up_container
+network_check
+update_os
 
 # System preparations
 msg_info "Setting default root password"
+usermod -U root 2>/dev/null || true
 echo "root:recipe" | chpasswd
 msg_ok "Root password set to 'recipe'"
-
-msg_info "Updating system package repositories"
-apt-get update
-apt-get upgrade -y
-msg_ok "System repositories updated"
 
 # Dependencies
 msg_info "Installing required packages"
