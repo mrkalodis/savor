@@ -152,7 +152,7 @@ router.post('/recipes/new/ai', async (req, res, next) => {
     const ingBlock = rawText.match(/Ingredients?:?([\s\S]*?)(?:Instructions?:?|Directions?:?)/i);
     if (ingBlock) {
       ingredients = ingBlock[1].split('\n')
-        .map(i => i.replace(/^[-*•\s\d\.]*/, '').trim()) // Strip list bullet symbols
+        .map(i => i.replace(/^[-*•\s]+/, '').trim()) // Strip list bullet symbols
         .filter(i => i.length > 0 && !i.toLowerCase().includes('ingredient'));
     }
     
