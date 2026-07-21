@@ -5,14 +5,14 @@ const { normalizeTitle, safeJsonParse } = require('../utils/sanitize');
  * Check for duplicate recipes before importing.
  * Returns match info if a likely duplicate exists.
  */
-function checkDuplicate(recipeData) {
+function checkDuplicate(userId, recipeData) {
   const db = getDb();
 
   // 1. Exact source URL match (definitive)
   if (recipeData.sourceUrl) {
     const urlMatch = db
-      .prepare('SELECT * FROM recipes WHERE source_url = ? AND status != ?')
-      .get(recipeData.sourceUrl, 'deleted');
+      .prepare('SELECT * FROM recipes WHERE user_id = ? AND source_url = ? AND status != ?')
+      .get(userId, recipeData.sourceUrl, 'deleted');
 
     if (urlMatch) {
       return {
@@ -28,8 +28,8 @@ function checkDuplicate(recipeData) {
   if (recipeData.title) {
     const normalized = normalizeTitle(recipeData.title);
     const allRecipes = db
-      .prepare('SELECT * FROM recipes WHERE status != ?')
-      .all('deleted');
+      .prepare('SELECT * FROM recipes WHERE user_id = ? AND status != ?')
+      .all(userId, 'deleted');
 
     for (const recipe of allRecipes) {
       if (normalizeTitle(recipe.title) === normalized) {

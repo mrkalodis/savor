@@ -366,6 +366,15 @@ const migrations = [
 
       PRAGMA foreign_keys=on;
     `
+  },
+  {
+    name: '007_recipe_tags_multitenant',
+    sql: `
+      PRAGMA foreign_keys=off;
+      ALTER TABLE recipe_tags ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE CASCADE;
+      UPDATE recipe_tags SET user_id = 1 WHERE user_id IS NULL AND EXISTS (SELECT 1 FROM users WHERE id = 1);
+      PRAGMA foreign_keys=on;
+    `
   }
 ];
 
