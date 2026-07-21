@@ -21,7 +21,7 @@ msg_ok "Root password set to 'recipe'"
 
 # Dependencies
 msg_info "Installing required packages"
-apt-get install -y curl git build-essential ca-certificates gnupg
+apt-get install -y curl git build-essential ca-certificates gnupg zstd
 msg_ok "Dependencies installed"
 
 # Node.js 20 LTS NodeSource
