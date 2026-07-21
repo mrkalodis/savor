@@ -18,7 +18,7 @@ router.post('/api/ai/chat', async (req, res) => {
     }
 
     const aiEndpoint = settingsService.get(req.user.id, 'ai_endpoint') || 'http://localhost:11434';
-    const aiModel = settingsService.get(req.user.id, 'ai_model') || 'qwen2.5:1.5b';
+    const aiModel = settingsService.get(req.user.id, 'ai_model') || 'qwen2.5:0.5b';
 
     const { message, history = [], context } = req.body;
 

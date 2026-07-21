@@ -40,7 +40,7 @@ function initDatabase() {
       const insertSetting = db.prepare('INSERT INTO settings (user_id, key, value) VALUES (?, ?, ?)');
       insertSetting.run(adminId, 'ai_enabled', '1');
       insertSetting.run(adminId, 'ai_endpoint', 'http://localhost:11434');
-      insertSetting.run(adminId, 'ai_model', 'qwen2.5:1.5b');
+      insertSetting.run(adminId, 'ai_model', 'qwen2.5:0.5b');
       insertSetting.run(adminId, 'theme', 'system');
       insertSetting.run(adminId, 'accent_color', 'purple');
       insertSetting.run(adminId, 'onboarding_complete', '1');

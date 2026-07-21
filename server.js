@@ -86,7 +86,7 @@ app.use((req, res, next) => {
     // Load AI configuration
     res.locals.aiEnabled = settingsService.get(req.user.id, 'ai_enabled') === '1';
     res.locals.aiEndpoint = settingsService.get(req.user.id, 'ai_endpoint') || 'http://localhost:11434';
-    res.locals.aiModel = settingsService.get(req.user.id, 'ai_model') || 'qwen2.5:1.5b';
+    res.locals.aiModel = settingsService.get(req.user.id, 'ai_model') || 'qwen2.5:0.5b';
   } else {
     res.locals.theme = 'system';
     res.locals.activeAccent = 'purple';
@@ -96,7 +96,7 @@ app.use((req, res, next) => {
     res.locals.deletedCount = 0;
     res.locals.aiEnabled = false;
     res.locals.aiEndpoint = 'http://localhost:11434';
-    res.locals.aiModel = 'qwen2.5:1.5b';
+    res.locals.aiModel = 'qwen2.5:0.5b';
   }
   
   next();

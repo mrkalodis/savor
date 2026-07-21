@@ -70,14 +70,14 @@ systemctl enable --now savor
 msg_ok "Systemd service configured and started"
 
 # Ollama Setup
-msg_info "Installing Ollama and pulling Qwen 2.5 1.5B model"
+msg_info "Installing Ollama and pulling Qwen 2.5 0.5B model"
 curl -fsSL https://ollama.com/install.sh | sh
 # Start Ollama service daemon explicitly if not already started
 systemctl enable --now ollama
 # Wait a moment for Ollama API to be ready
 sleep 5
 # Pull the model
-ollama pull qwen2.5:1.5b
+ollama pull qwen2.5:0.5b
 msg_ok "Ollama and AI model installed"
 
 # Cleanup
