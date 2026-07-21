@@ -129,7 +129,7 @@
   <!-- AI Companion Settings -->
   <div class="settings-section">
     <h3>AI Companion Config</h3>
-    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Configure Savor's local AI kitchen assistant. The model runs locally in the container and guarantees absolute privacy.</p>
+    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Configure Savor's AI kitchen assistant. By default, it runs 100% locally in your container for absolute privacy. If you experience CPU lag, you can configure free cloud APIs like <strong>Groq</strong> or <strong>Google Gemini</strong> for instant, zero-load generation.</p>
     
     <form action="/settings" method="POST">
       <input type="hidden" name="action" value="ai_config">
@@ -148,18 +148,24 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Ollama API Endpoint</label>
+          <label class="form-label">API Endpoint</label>
           <input type="text" name="ai_endpoint" class="form-control" placeholder="http://localhost:11434" value="<%= locals.aiEndpoint || 'http://localhost:11434' %>">
+          <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">Defaults to local Ollama install: <code>http://localhost:11434</code></span>
         </div>
 
         <div class="form-group">
           <label class="form-label">Model Name</label>
-          <input type="text" name="ai_model" class="form-control" placeholder="qwen2.5:0.5b" value="<%= locals.aiModel || 'qwen2.5:0.5b' %>">
+          <input type="text" name="ai_model" class="form-control" placeholder="llama3.2:1b" value="<%= locals.aiModel || 'llama3.2:1b' %>">
+          <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">Defaults to local <code>llama3.2:1b</code></span>
         </div>
 
         <div class="form-group" style="margin-bottom: 0;">
-          <label class="form-label">API Key (Optional - for OpenRouter/Groq/Gemini/OpenAI)</label>
+          <label class="form-label">API Key (Optional — for Groq/Gemini/OpenAI/OpenRouter)</label>
           <input type="password" name="ai_api_key" class="form-control" placeholder="e.g. sk-..." value="<%= locals.aiApiKey || '' %>">
+          <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">
+            <strong>Groq (Free & Blazing Fast):</strong> Endpoint: <code>https://api.groq.com/openai/v1</code> | Model: <code>llama-3.1-8b-instant</code><br>
+            <strong>To switch back to local:</strong> Clear this API Key, set Endpoint to <code>http://localhost:11434</code> and Model to <code>llama3.2:1b</code>
+          </span>
         </div>
       </div>
       
