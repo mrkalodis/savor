@@ -22,7 +22,7 @@ catch_errors
 
 # Intercept curl to redirect the install script download to our custom repo
 function curl() {
-  if [[ "$*" == *"community-scripts/ProxmoxVE/main/install/savor.sh"* ]]; then
+  if [[ "$*" == *"savor-install.sh"* ]]; then
     command curl -fsSL "https://raw.githubusercontent.com/mrkalodis/savor/main/proxmox/install/savor-install.sh"
   else
     command curl "$@"
