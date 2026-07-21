@@ -66,7 +66,7 @@
                       <% if (meal.recipe_image) { %>
                         <img src="<%= meal.recipe_image %>" style="width: 24px; height: 24px; border-radius: 4px; object-fit: cover;">
                       <% } else { %>
-                        <img src="/images/placeholder.png" style="width: 24px; height: 24px; border-radius: 4px; object-fit: contain; opacity: 0.4;">
+                        <img src="/images/placeholder.png?v=2" style="width: 24px; height: 24px; border-radius: 4px; object-fit: contain; opacity: 0.4;">
                       <% } %>
                       <a href="/recipes/<%= meal.recipe_id %>" style="font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-text); text-decoration: none;">
                         <%= meal.recipe_title %>

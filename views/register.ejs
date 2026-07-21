@@ -1,0 +1,47 @@
+<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background-color: var(--bg-app); padding: 1.5rem;">
+  <div class="detail-section" style="max-width: 400px; width: 100%; box-shadow: var(--shadow-lg); padding: 3rem 2rem; border-radius: var(--radius-xl); border: 1px solid var(--border); background-color: var(--bg-surface-solid); text-align: center;">
+    
+    <!-- Savor logo: Green Leaf with S sprout -->
+    <div style="background-color: var(--primary-glow); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width: 48px; height: 48px;">
+        <path d="M15,40 C15,22 30,15 55,15 C80,15 85,32 85,55 C85,78 70,85 45,85 C20,85 15,78 15,40 Z" fill="#588157"/>
+        <path d="M38,32 C50,28 65,30 65,40 C65,48 50,50 40,55 C30,60 35,70 52,70 C65,70 70,62 68,54" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+
+    <h2 style="margin-bottom: 0.5rem; font-size: 1.75rem;">Create Account</h2>
+    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem;">Register a new account to manage your recipes.</p>
+
+    <% if (error) { %>
+      <div style="background-color: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 0.75rem 1rem; border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 600; margin-bottom: 1.5rem; text-align: center; border: 1px solid rgba(239, 68, 68, 0.2);">
+        <% if (error === 'missing_fields') { %> Please fill in all fields. 
+        <% } else if (error === 'passwords_dont_match') { %> Passwords do not match. 
+        <% } else if (error === 'password_too_short') { %> Password must be at least 6 characters. 
+        <% } else { %> <%= error %> <% } %>
+      </div>
+    <% } %>
+
+    <form action="/register" method="POST">
+      <div class="form-group" style="text-align: left; margin-bottom: 1rem;">
+        <label for="register-email" class="form-label">Email</label>
+        <input type="email" id="register-email" name="email" class="form-control" placeholder="user@example.com" required autofocus style="padding: 0.75rem;">
+      </div>
+      <div class="form-group" style="text-align: left; margin-bottom: 1rem;">
+        <label for="register-password" class="form-label">Password</label>
+        <input type="password" id="register-password" name="password" class="form-control" placeholder="••••••••" required style="padding: 0.75rem;">
+      </div>
+      <div class="form-group" style="text-align: left; margin-bottom: 1.5rem;">
+        <label for="register-confirm-password" class="form-label">Confirm Password</label>
+        <input type="password" id="register-confirm-password" name="confirm_password" class="form-control" placeholder="••••••••" required style="padding: 0.75rem;">
+      </div>
+      
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.85rem; margin-bottom: 1.5rem;">
+        Create Account
+      </button>
+
+      <div style="font-size: 0.85rem; color: var(--text-secondary);">
+        Already have an account? <a href="/login" class="link" style="color: var(--primary); font-weight: 600;">Log In</a>
+      </div>
+    </form>
+  </div>
+</div>

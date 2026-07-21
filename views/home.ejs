@@ -4,7 +4,7 @@
     <div class="detail-section" style="max-width: 650px; margin: 2rem auto; padding: 3rem 2.5rem; text-align: center; box-shadow: var(--shadow-lg); border-radius: var(--radius-xl); border-top: 6px solid var(--primary);">
       <!-- Stylized logo icon -->
       <div style="background-color: var(--primary-glow); color: var(--primary); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
-        <img src="/images/placeholder.png" alt="Savor Logo" style="width: 50px; height: 50px; opacity: 0.85; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); object-fit: contain;">
+        <img src="/images/logo.png?v=2" alt="Savor Logo" style="width: 50px; height: 50px; opacity: 0.85; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); object-fit: contain; border-radius: var(--radius-sm);">
       </div>
 
       <h2 style="margin-bottom: 0.75rem; font-size: 2rem; font-weight: 800;">Welcome to Savor</h2>
@@ -101,7 +101,7 @@
     <% if (recentRecipes.length === 0) { %>
       <!-- Empty state -->
       <div class="empty-state detail-section">
-        <img src="/images/placeholder.png" alt="No recipes" style="width: 100px; height: 100px; opacity: 0.15; margin: 0 auto 1.5rem auto; display: block; object-fit: contain;">
+        <img src="/images/placeholder.png?v=2" alt="No recipes" style="width: 100px; height: 100px; opacity: 0.15; margin: 0 auto 1.5rem auto; display: block; object-fit: contain; border-radius: var(--radius-md);">
         <h3>Start your cooking library</h3>
         <p>Create recipes manually, upload photos, or import them directly from popular websites with a single click.</p>
         <a href="/recipes/new" class="btn btn-primary">Add a Recipe</a>
@@ -141,7 +141,7 @@
                     <img src="<%= recipe.image_path %>" alt="<%= recipe.title %>" style="width: 60px; height: 60px; border-radius: var(--radius-md); object-fit: cover;">
                   <% } else { %>
                     <div style="width: 60px; height: 60px; border-radius: var(--radius-md); background: var(--primary-glow); color: var(--primary); display: flex; align-items: center; justify-content: center;">
-                      <img src="/images/placeholder.png" alt="Placeholder" style="width: 36px; height: 36px; opacity: 0.25; object-fit: contain;">
+                      <img src="/images/placeholder.png?v=2" alt="Placeholder" style="width: 36px; height: 36px; opacity: 0.25; object-fit: contain; border-radius: var(--radius-sm);">
                     </div>
                   <% } %>
                   <div style="overflow: hidden; flex-grow: 1;">

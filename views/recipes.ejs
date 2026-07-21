@@ -58,7 +58,7 @@
   <!-- Recipe list -->
   <% if (!recipes.recipes || recipes.recipes.length === 0) { %>
     <div class="empty-state detail-section">
-      <img src="/images/placeholder.png" alt="No recipes" style="width: 100px; height: 100px; opacity: 0.15; margin: 0 auto 1.5rem auto; display: block; object-fit: contain;">
+      <img src="/images/placeholder.png?v=2" alt="No recipes" style="width: 100px; height: 100px; opacity: 0.15; margin: 0 auto 1.5rem auto; display: block; object-fit: contain; border-radius: var(--radius-md);">
       <h3>No recipes found</h3>
       <p>Try clearing your filters or create a new recipe to start your catalog.</p>
       <a href="/recipes/new" class="btn btn-primary">Create a Recipe</a>
