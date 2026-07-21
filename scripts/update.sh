@@ -26,6 +26,7 @@ cd "$APP_DIR"
 git pull
 
 echo "Installing production dependencies..."
+rm -rf node_modules
 npm install --production --no-audit --no-fund
 
 echo "Starting Savor service..."

@@ -37,6 +37,7 @@ cd /opt/savor
 msg_ok "Source code downloaded"
 
 msg_info "Installing NPM dependencies"
+rm -rf node_modules
 npm install --production --no-audit --no-fund
 msg_ok "NPM dependencies installed"
 
