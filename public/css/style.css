@@ -453,6 +453,9 @@ body::after {
 }
 
 @media (max-width: 1024px) {
+  .app-layout {
+    position: static;
+  }
   .sidebar {
     position: fixed;
     top: 0;
