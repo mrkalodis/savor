@@ -251,7 +251,7 @@ router.post('/recipes', upload.single('image'), async (req, res, next) => {
 
     // Handle image upload
     if (req.file) {
-      const imgPath = await imageService.saveFromUpload(req.user.id, req.file, recipe.id);
+      const imgPath = await imageService.saveFromUpload(req.file, recipe.id);
       if (imgPath) {
         await recipeService.updateImagePath(req.user.id, recipe.id, imgPath);
       }
@@ -336,12 +336,12 @@ const handleRecipeUpdate = async (req, res, next) => {
 
     // Handle image upload or removal
     if (req.file) {
-      const imgPath = await imageService.saveFromUpload(req.user.id, req.file, req.params.id);
+      const imgPath = await imageService.saveFromUpload(req.file, req.params.id);
       if (imgPath) {
         await recipeService.updateImagePath(req.user.id, req.params.id, imgPath);
       }
     } else if (data.remove_image === '1') {
-      await imageService.deleteImages(req.user.id, req.params.id);
+      await imageService.deleteImages(req.params.id);
       await recipeService.updateImagePath(req.user.id, req.params.id, '');
     }
 
@@ -413,7 +413,7 @@ router.post('/recipes/:id/delete', async (req, res, next) => {
 // DELETE /recipes/:id - Permanent delete
 router.delete('/recipes/:id', async (req, res, next) => {
   try {
-    await imageService.deleteImages(req.user.id, req.params.id);
+    await imageService.deleteImages(req.params.id);
     await recipeService.delete(req.user.id, req.params.id);
     
     const referer = req.get('Referer') || '';
