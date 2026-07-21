@@ -122,22 +122,90 @@ router.post('/recipes/new/ai', async (req, res, next) => {
     let title = '';
     let ingredients = [];
     let instructions = [];
-    
-    const titleMatch = rawText.match(/\*\*Title:\*\*\s*(.*)/i) || rawText.match(/Title:\s*(.*)/i);
-    if (titleMatch) title = titleMatch[1].replace(/[*#_]/g, '').trim();
-    
+    let servings = '';
+    let prepTime = '';
+    let cookTime = '';
+    let totalTime = '';
+    let description = '';
+
+    // 1. Parse Title robustly
+    const titleMatch = rawText.match(/\*\*Title:\*\*\s*(.*)/i) || 
+                       rawText.match(/Title:\s*(.*)/i) ||
+                       rawText.match(/^#+\s*(.*)/m);
+    if (titleMatch) {
+      title = titleMatch[1].replace(/[*#_]/g, '').trim();
+    } else {
+      // Look for the first short bold line that isn't headers
+      const lines = rawText.split('\n').map(l => l.trim());
+      for (const line of lines) {
+        if (line.startsWith('**') && line.endsWith('**')) {
+          const cleanLine = line.replace(/\*\*/g, '').trim();
+          if (cleanLine && cleanLine.length < 80 && !cleanLine.toLowerCase().includes('ingredient') && !cleanLine.toLowerCase().includes('instruction')) {
+            title = cleanLine;
+            break;
+          }
+        }
+      }
+    }
+
+    // 2. Parse Ingredients
     const ingBlock = rawText.match(/Ingredients?:?([\s\S]*?)(?:Instructions?:?|Directions?:?)/i);
     if (ingBlock) {
       ingredients = ingBlock[1].split('\n')
-        .map(i => i.replace(/^[-*•\s]+/, '').trim())
+        .map(i => i.replace(/^[-*•\s\d\.]*/, '').trim()) // Strip list bullet symbols
         .filter(i => i.length > 0 && !i.toLowerCase().includes('ingredient'));
     }
     
+    // 3. Parse Instructions
     const instBlock = rawText.match(/(?:Instructions?:?|Directions?:?)([\s\S]*)$/i);
     if (instBlock) {
       instructions = instBlock[1].split('\n')
         .map(i => i.replace(/^(\d+\.|[-*•])\s+/, '').trim())
         .filter(i => i.length > 0 && !i.toLowerCase().includes('instruction'));
+    }
+
+    // 4. Parse Servings
+    const servingsMatch = rawText.match(/(?:Servings|Serves|Yield):\s*(.*)/i) || 
+                          rawText.match(/\*\*(?:Servings|Serves|Yield):\*\*\s*(.*)/i);
+    if (servingsMatch) servings = servingsMatch[1].replace(/[*#_]/g, '').trim();
+
+    // 5. Parse Times
+    const prepMatch = rawText.match(/(?:Prep Time|Prep):\s*(\d+)/i) || 
+                      rawText.match(/\*\*(?:Prep Time|Prep):\*\*\s*(\d+)/i);
+    if (prepMatch) prepTime = prepMatch[1].trim();
+
+    const cookMatch = rawText.match(/(?:Cook Time|Cook):\s*(\d+)/i) || 
+                      rawText.match(/\*\*(?:Cook Time|Cook):\*\*\s*(\d+)/i);
+    if (cookMatch) cookTime = cookMatch[1].trim();
+
+    const totalMatch = rawText.match(/(?:Total Time|Total):\s*(\d+)/i) || 
+                       rawText.match(/\*\*(?:Total Time|Total):\*\*\s*(\d+)/i);
+    if (totalMatch) totalTime = totalMatch[1].trim();
+
+    // 6. Parse Description
+    const lines = rawText.split('\n').map(l => l.trim());
+    let descLines = [];
+    let passedTitle = false;
+    for (const line of lines) {
+      if (!line) continue;
+      if (line.startsWith('#') || line.toLowerCase().startsWith('title:')) {
+        passedTitle = true;
+        continue;
+      }
+      if (line.toLowerCase().startsWith('ingredients') || line.startsWith('**Ingredients')) {
+        break;
+      }
+      if (line.toLowerCase().includes('serv') || line.toLowerCase().includes('time:')) {
+        continue;
+      }
+      if (line.toLowerCase().startsWith('here is') || line.toLowerCase().startsWith('sure,')) {
+        continue;
+      }
+      descLines.push(line);
+    }
+    description = descLines.join(' ').replace(/[*#_]/g, '').trim();
+    if (description.length > 300) {
+      description = description.substring(0, 300) + '...';
     }
     
     if (!title && ingredients.length === 0 && instructions.length === 0) {
@@ -152,7 +220,16 @@ router.post('/recipes/new/ai', async (req, res, next) => {
       view: 'recipe-form',
       formatDuration,
       mode: 'create',
-      recipe: { title, ingredients, instructions },
+      recipe: { 
+        title, 
+        description,
+        ingredients, 
+        instructions, 
+        servings,
+        prep_time: prepTime,
+        cook_time: cookTime,
+        total_time: totalTime
+      },
       collections
     });
   } catch (err) {

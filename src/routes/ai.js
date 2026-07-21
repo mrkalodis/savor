@@ -26,7 +26,17 @@ router.post('/api/ai/chat', async (req, res) => {
       return res.status(400).json({ error: 'Message is required.' });
     }
 
-    let systemContent = 'You are Savor AI, a helpful, concise kitchen companion running locally on the user\'s server. Never claim to be created by OpenAI, Anthropic, or hosted on a cloud platform. If asked about your database access or hosting, state clearly that you run locally inside the Savor application and only have access to the information explicitly passed to you in the chat (like the current recipe context), with no direct access to the underlying server or databases.';
+    let systemContent = 'You are Savor AI, a helpful, concise kitchen companion running locally on the user\'s server. Never claim to be created by OpenAI, Anthropic, or hosted on a cloud platform. If asked about your database access or hosting, state clearly that you run locally inside the Savor application and only have access to the information explicitly passed to you in the chat (like the current recipe context), with no direct access to the underlying server or databases.' +
+      '\n\nAI BEHAVIOR RULES:\n' +
+      '1. ALWAYS ASK SERVINGS: If the user asks you to generate, write, or create a recipe, you MUST first ask them how many people/servings they want the recipe for, unless they already specified the servings in their request. DO NOT generate the recipe until they provide the servings.\n' +
+      '2. STRUCTURED RECIPE OUTPUT: When you generate a recipe, you MUST write the recipe using the exact key headers below so the system can parse it. Do NOT skip any headers and do NOT add conversational text before the Title:\n' +
+      'Title: [Name of Recipe]\n' +
+      'Description: [Brief description of the dish]\n' +
+      'Servings: [Number of servings, e.g. 4]\n' +
+      'Prep Time: [Minutes, e.g. 15]\n' +
+      'Cook Time: [Minutes, e.g. 30]\n' +
+      'Ingredients:\n- [First ingredient]\n- [Second ingredient]\n\n' +
+      'Instructions:\n1. [First step]\n2. [Second step]';
     if (context) {
       systemContent += `\n\nCRITICAL CONTEXT: The user is currently viewing a recipe on their screen. The system has extracted the text of this recipe and provided it to you below. If the user asks if you can see their recipe, say YES and tell them you can see it. Do NOT say you cannot see it. Here is the recipe they are looking at:\n${context}`;
     }
