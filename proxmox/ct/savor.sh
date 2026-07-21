@@ -20,11 +20,15 @@ variables
 color
 catch_errors
 
-function install_script() {
-  local _install_script
-  _install_script="$(curl -fsSL https://raw.githubusercontent.com/mrkalodis/savor/main/proxmox/install/savor-install.sh)"
-  lxc-attach -n "$CTID" -- bash -c "$_install_script"
+# Intercept curl to redirect the install script download to our custom repo
+function curl() {
+  if [[ "$*" == *"community-scripts/ProxmoxVE/main/install/savor.sh"* ]]; then
+    command curl -fsSL "https://raw.githubusercontent.com/mrkalodis/savor/main/proxmox/install/savor-install.sh"
+  else
+    command curl "$@"
+  fi
 }
+export -f curl
 
 function update_script() {
   header_info
