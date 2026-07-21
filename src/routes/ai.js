@@ -50,7 +50,10 @@ router.post('/api/ai/chat', async (req, res) => {
       body: JSON.stringify({
         model: aiModel,
         messages: messages,
-        stream: true
+        stream: true,
+        options: {
+          num_thread: 2
+        }
       })
     });
 
