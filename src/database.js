@@ -40,7 +40,7 @@ function initDatabase() {
       const insertSetting = db.prepare('INSERT INTO settings (user_id, key, value) VALUES (?, ?, ?)');
       insertSetting.run(adminId, 'ai_enabled', '1');
       insertSetting.run(adminId, 'ai_endpoint', 'http://localhost:11434');
-      insertSetting.run(adminId, 'ai_model', 'qwen2.5:0.5b');
+      insertSetting.run(adminId, 'ai_model', 'llama3.2:1b');
       insertSetting.run(adminId, 'theme', 'system');
       insertSetting.run(adminId, 'accent_color', 'purple');
       insertSetting.run(adminId, 'onboarding_complete', '1');
@@ -57,6 +57,13 @@ function initDatabase() {
       }
     })();
     console.log('[DB] Seeded default admin user (admin@local / recipe)');
+  }
+
+  // Migration: Auto-upgrade default model from qwen2.5:0.5b to llama3.2:1b
+  try {
+    db.prepare("UPDATE settings SET value = 'llama3.2:1b' WHERE key = 'ai_model' AND value = 'qwen2.5:0.5b'").run();
+  } catch (e) {
+    console.error('[DB] Migration error updating default model:', e);
   }
 
   return db;
