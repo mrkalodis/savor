@@ -20,6 +20,12 @@ variables
 color
 catch_errors
 
+function install_script() {
+  local _install_script
+  _install_script="$(curl -fsSL https://raw.githubusercontent.com/mrkalodis/savor/main/proxmox/install/savor-install.sh)"
+  lxc-attach -n "$CTID" -- bash -c "$_install_script"
+}
+
 function update_script() {
   header_info
   if [ ! -d /opt/savor ]; then

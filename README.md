@@ -52,6 +52,22 @@ If logging directly into the container terminal via Proxmox GUI:
 > [!IMPORTANT]
 > For security, navigate to the **Settings** panel in the web app to change the default password, and run `passwd` in the container console to update the root password.
 
+## 🔄 Updating Savor
+
+When new features are pushed to GitHub, you can easily update your container to the latest version. You have two options:
+
+**Option 1: Using the Proxmox Helper Script (Recommended)**
+Log into your Savor LXC container's console in Proxmox and run the exact same install command. The script will automatically detect it's an existing container and update it:
+```bash
+bash -c "$(wget -qLO - https://raw.githubusercontent.com/mrkalodis/savor/main/proxmox/ct/savor.sh)"
+```
+
+**Option 2: Using the local update script**
+Log into your Savor LXC container's console and run the built-in updater directly:
+```bash
+bash /opt/savor/scripts/update.sh
+```
+
 ---
 
 ## 🛠️ Local Development Setup

@@ -30,7 +30,7 @@ msg_ok "Node.js 20 LTS installed"
 
 # Savor Setup
 msg_info "Downloading Savor Recipe Manager source code"
-git clone https://github.com/community-scripts/savor.git /opt/savor
+git clone https://github.com/mrkalodis/savor.git /opt/savor
 cd /opt/savor
 msg_ok "Source code downloaded"
 
