@@ -538,3 +538,23 @@ function updateVoiceBadge(status, text) {
     dot.style.background = 'var(--color-text-tertiary)';
   }
 }
+
+// Start a manual user-created timer
+function startCustomTimer() {
+  const minsInput = document.getElementById('custom-timer-mins');
+  const labelInput = document.getElementById('custom-timer-label');
+  if (!minsInput) return;
+  
+  const mins = parseFloat(minsInput.value);
+  if (isNaN(mins) || mins <= 0) {
+    alert('Please enter a valid number of minutes.');
+    return;
+  }
+  
+  const label = labelInput && labelInput.value.trim() ? labelInput.value.trim() : 'Custom Timer';
+  createTimer(mins * 60, label);
+  
+  // Clear inputs
+  minsInput.value = '';
+  labelInput.value = '';
+}

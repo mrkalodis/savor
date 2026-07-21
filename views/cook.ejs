@@ -260,10 +260,17 @@
       </div>
       <span id="drawer-toggle-arrow" style="font-weight: 700; font-size: 0.85rem;">▲</span>
     </div>
+
+    <!-- Custom Timer Quick Form -->
+    <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--color-border); display: flex; gap: 0.5rem; align-items: center; background: var(--color-bg-tertiary);">
+      <input type="number" id="custom-timer-mins" placeholder="Mins" class="form-control" style="width: 80px; padding: 0.4rem 0.5rem; font-size: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-bg-secondary); color: var(--color-text);" min="1">
+      <input type="text" id="custom-timer-label" placeholder="Label (e.g. Pasta)" class="form-control" style="flex-grow: 1; padding: 0.4rem 0.5rem; font-size: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-bg-secondary); color: var(--color-text);">
+      <button class="btn btn-primary" onclick="startCustomTimer()" style="padding: 0.4rem 1rem; font-size: 0.85rem; border-radius: var(--radius-sm); border: none; font-weight: 600; cursor: pointer; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--primary);">Start</button>
+    </div>
     
     <div class="timer-list" id="active-timers-list">
       <div style="text-align: center; color: var(--color-text-tertiary); font-size: 0.8rem; padding: 1rem 0;">
-        No active timers. Click a duration in the instructions to start one.
+        No active timers. Click a duration in the instructions to start one or enter a custom duration above.
       </div>
     </div>
   </div>
@@ -277,6 +284,6 @@
     const recipeTitle = <%- JSON.stringify(recipe.title) %>;
     const recipeSteps = <%- JSON.stringify(instructions) %>;
   </script>
-  <script src="/js/cook-mode.js"></script>
+  <script src="/js/cook-mode.js?v=<%= Date.now() %>"></script>
 </body>
 </html>
