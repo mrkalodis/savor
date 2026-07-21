@@ -77,7 +77,7 @@ systemctl enable --now ollama
 # Wait a moment for Ollama API to be ready
 sleep 5
 # Pull the model
-ollama pull qwen2.5:0.5b
+ollama pull llama3.2:1b
 msg_ok "Ollama and AI model installed"
 
 # Cleanup
